@@ -33,8 +33,8 @@ class UserRepository {
     async findByIdentifier(identifier) {
         return User.findOne({$or: [{email: identifier}, {username: identifier}]});
     }
-    async updatePassword(userId, updateData) {
-        return User.findByIdAndUpdate(userId, updateData, { new: true });
+    async updatePassword(email, updateData) {
+        return User.findOneAndUpdate({email}, updateData, { new: true });
     }
     async createUser(userData) {
         const user = new User(userData);

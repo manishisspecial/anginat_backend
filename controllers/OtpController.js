@@ -2,13 +2,14 @@ const OtpService = require('../services/OtpService');
 const UserService = require('../services/UserService');
 const { sendSuccessResponse, sendErrorResponse } = require('../utils/response');
 
+
 class OtpController {
     async generateOtp(req, res) {
         try {
-            const { userId, email, otpType } = req.body;
-            const user = await UserService.findById(userId);
-            if (!user) return sendErrorResponse(res, 'User not found', 404);
-            const otpCode = await OtpService.generateOtp(userId, otpType);
+            const {email, otpType } = req.body;
+            /*const user = await UserService.findById(userId);
+            if (!user) return sendErrorResponse(res, 'User not found', 404);*/
+            const otpCode = await OtpService.generateOtp(otpType);
             await OtpService.sendOtpEmail(email, otpCode);
             return sendSuccessResponse(res, 'OTP generated and sent successfully.');
         } catch (error) {
@@ -17,11 +18,11 @@ class OtpController {
     }
     async verifyOtp(req, res) {
         try {
-            const { userId, otp, otpType } = req.body;
-            if (!mongoose.Types.ObjectId.isValid(userId)) {
+            const { otp, otpType } = req.body;
+            /*if (!mongoose.Types.ObjectId.isValid(userId)) {
                 throw new Error('Invalid MongoDB ID');
-            }
-            const isValid = await OtpService.verifyOtp(userId, otp, otpType);
+            }*/
+            const isValid = await OtpService.verifyOtp(otp, otpType);
             if (!isValid) {
                 return sendErrorResponse(res, 'Invalid or expired OTP', 400);
             }

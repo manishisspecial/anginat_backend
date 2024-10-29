@@ -1,22 +1,28 @@
-// controllers/LeadController.js
 const LeadService = require('../services/LeadService');
 const Institution = require('../models/Institution');
+const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
+
 class LeadController {
     async createLead(req, res) {
         try {
             const leadData = req.body;
             const institution = await Institution.findOne({ domain: req.body.institutionDomain });
+
             if (!institution) {
-                throw new Error('Institution not found');
+                return sendErrorResponse(res, 'Institution not found', 404);
             }
+
             const newLead = {
                 ...leadData,
                 institution: institution._id
             };
+
             const lead = await LeadService.createLead(newLead);
-            res.status(201).json(lead);
+            return sendSuccessResponse(res, 'Lead created successfully', { lead });
+
         } catch (error) {
-            res.status(500).json({ message: 'Error creating lead', error });
+            console.error("Create Lead Error:", { message: error.message, stack: error.stack });
+            return sendErrorResponse(res, 'Error creating lead', 500, error.message);
         }
     }
 
@@ -25,25 +31,30 @@ class LeadController {
             const userRole = req.user.role;
             const userInstitution = req.user.institution;
             let query = {};
+
             if (userRole === 'admin') {
-                query = { institution: userInstitution, status: 'active' };
+                query = { institution: userInstitution};
             }
+
             const leads = await LeadService.getLeads(query);
-            res.status(200).json(leads);
+            return sendSuccessResponse(res, 'Leads retrieved successfully', { leads });
 
         } catch (error) {
-            res.status(500).json({ message: 'Error retrieving leads', error: error.message });
+            console.error("Get Leads Error:", { message: error.message, stack: error.stack });
+            return sendErrorResponse(res, 'Error retrieving leads', 500, error.message);
         }
     }
-
 
     async updateLeadStatus(req, res) {
         try {
             const { leadId, status } = req.body;
             const updatedLead = await LeadService.updateLeadStatus(leadId, status);
-            res.status(200).json(updatedLead);
+
+            return sendSuccessResponse(res, 'Lead status updated successfully', { updatedLead });
+
         } catch (error) {
-            res.status(500).json({ message: 'Error updating lead status', error });
+            console.error("Update Lead Status Error:", { message: error.message, stack: error.stack });
+            return sendErrorResponse(res, 'Error updating lead status', 500, error.message);
         }
     }
 
@@ -51,9 +62,12 @@ class LeadController {
         try {
             const { leadIds, status } = req.body;
             await LeadService.updateBulkStatus(leadIds, status);
-            res.status(200).json({ message: 'Lead statuses updated successfully' });
+
+            return sendSuccessResponse(res, 'Lead statuses updated successfully');
+
         } catch (error) {
-            res.status(500).json({ message: 'Error updating lead statuses', error });
+            console.error("Update Bulk Status Error:", { message: error.message, stack: error.stack });
+            return sendErrorResponse(res, 'Error updating lead statuses', 500, error.message);
         }
     }
 }

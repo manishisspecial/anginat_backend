@@ -3,6 +3,7 @@ const InstitutionService = require('../services/InstitutionService');
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
+const OtpService = require("../services/OtpService");
 
 class AuthController {
     async register(req, res) {
@@ -72,9 +73,11 @@ class AuthController {
     }
     async forgotPassword(req, res) {
         try {
-            const { email } = req.body;
+            const { email,otpType } = req.body;
             const user = await UserService.findByEmail(email);
             if (!user) return sendErrorResponse(res, 'User not found', 404);
+            const otpCode = await OtpService.generateOtp(otpType);
+            await OtpService.sendOtpEmail(email, otpCode);
             return sendSuccessResponse(res, 'OTP sent to email for password reset');
         } catch (error) {
             return sendErrorResponse(res, 'Failed to send OTP for password reset', 500, error.message || error);

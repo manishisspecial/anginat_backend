@@ -7,7 +7,7 @@ class LeadRepository {
     }
 
     async getLeads(query = {}) {
-        return await Lead.find(query).populate('institutionDomain'); // populates with institution details
+        return await Lead.find(query).populate('institution');
     }
 
     async updateLeadStatus(leadId, status) {

@@ -22,9 +22,9 @@ class UserService {
         }
     }
 
-    async updatePassword(userId, newPassword) {
+    async updatePassword(email, newPassword) {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        return UserRepository.updatePassword(userId, { password: hashedPassword });
+        return UserRepository.updatePassword(email, { password: hashedPassword });
     }
 
     async login(emailOrUsername, password) {

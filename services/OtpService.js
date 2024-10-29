@@ -2,10 +2,9 @@ const OtpRepository = require('../repositories/OtpRepository');
 const nodemailer = require('nodemailer');
 
 class OtpService {
-    async generateOtp(userId, otpType) {
+    async generateOtp(otpType) {
         const otpCode = this._generateOtpCode();
         const otp = await OtpRepository.createOtp({
-            userId,
             otp: otpCode,
             otpType,
             expiresAt: new Date(Date.now() + 10 * 60000) // 10 minutes expiry
@@ -13,8 +12,8 @@ class OtpService {
         return otpCode;
     }
 
-    async verifyOtp(userId, otp, otpType) {
-        const storedOtp = await OtpRepository.findOtp(userId, otp, otpType);
+    async verifyOtp(otp, otpType) {
+        const storedOtp = await OtpRepository.findOtp(otp, otpType);
         if (!storedOtp ||
             storedOtp.expiresAt < new Date() ||
             storedOtp.status === 'used') {
