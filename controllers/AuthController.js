@@ -21,12 +21,24 @@ class AuthController {
                 await session.abortTransaction();
                 return sendErrorResponse(res, 'User with this username already exists.', 400);
             }
+            const existingInstitutionByDomain = await InstitutionService.findByDomain(institutionData.domainName);
+            if (existingInstitutionByDomain) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'Institution with this username already exists.', 400);
+            }
+            const existingInstitutionByEmail = await InstitutionService.findByInstitutionEmail(institutionData.email);
+            if (existingInstitutionByEmail) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'Institution with this email already exists.', 400);
+            }
 
             const existingUserByPhone = await UserService.findByPhone(phoneNumber);
             if (existingUserByPhone) {
                 await session.abortTransaction();
                 return sendErrorResponse(res, 'User with this phone already exists.', 400);
             }
+
+
             const institution = await InstitutionService.findOrCreateInstitution(
                 institutionData,
                 { session }

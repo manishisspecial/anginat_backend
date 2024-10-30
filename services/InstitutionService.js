@@ -1,5 +1,6 @@
 // services/InstitutionService.js
 const InstitutionRepository = require('../repositories/InstitutionRepository');
+const UserRepository = require("../repositories/UserRepository");
 class InstitutionService {
     async findOrCreateInstitution(institutionData) {
         let institution = await InstitutionRepository.findByName(institutionData.email);
@@ -15,6 +16,22 @@ class InstitutionService {
         } catch (error) {
             console.error("Error finding institution by ID:", error.message || error);
             throw new Error('Error finding institution');
+        }
+    }
+    async findByDomain(domain) {
+        try {
+            return await InstitutionRepository.findByDomain(domain);
+        } catch (error) {
+            console.error("Error finding user by usernname:", error.message || error);
+            throw new Error('Error finding user by username');
+        }
+    }
+    async findByInstitutionEmail(email) {
+        try {
+            return await InstitutionRepository.findByInstitutionEmail(email);
+        } catch (error) {
+            console.error("Error finding user by institution:", error.message || error);
+            throw new Error('Error finding user by institution');
         }
     }
 }

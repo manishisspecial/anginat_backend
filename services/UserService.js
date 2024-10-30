@@ -54,6 +54,7 @@ class UserService {
         }
     }
 
+
     async findByPhone(phoneNumber) {
         try {
             return await UserRepository.findByPhone(phoneNumber);
