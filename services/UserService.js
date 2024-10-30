@@ -45,6 +45,15 @@ class UserService {
             throw new Error('Error finding user by email');
         }
     }
+    async findByUsername(username) {
+        try {
+            return await UserRepository.findByUsername(username);
+        } catch (error) {
+            console.error("Error finding user by usernname:", error.message || error);
+            throw new Error('Error finding user by username');
+        }
+    }
+
     async findByPhone(phoneNumber) {
         try {
             return await UserRepository.findByPhone(phoneNumber);

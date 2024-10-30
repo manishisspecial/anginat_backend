@@ -16,6 +16,11 @@ class AuthController {
                 await session.abortTransaction();
                 return sendErrorResponse(res, 'User with this email already exists.', 400);
             }
+            const existingUserByUsername = await UserService.findByUsername(username);
+            if (existingUserByUsername) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'User with this username already exists.', 400);
+            }
 
             const existingUserByPhone = await UserService.findByPhone(phoneNumber);
             if (existingUserByPhone) {
