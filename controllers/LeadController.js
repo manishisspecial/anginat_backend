@@ -6,7 +6,8 @@ class LeadController {
     async createLead(req, res) {
         try {
             const leadData = req.body;
-            const institution = await Institution.findOne({ domain: req.body.institutionDomain });
+            const institution = await Institution.findOne({ domainName: req.body.institutionDomain });
+            console.log(institution);
 
             if (!institution) {
                 return sendErrorResponse(res, 'Institution not found', 404);
