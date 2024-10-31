@@ -6,11 +6,12 @@ const { sendSuccessResponse, sendErrorResponse } = require('../utils/response');
 class OtpController {
     async generateOtp(req, res) {
         try {
-            const {email, otpType } = req.body;
+            const {receiverId, otpType } = req.body;
+            console.log(receiverId);
             /*const user = await UserService.findById(userId);
             if (!user) return sendErrorResponse(res, 'User not found', 404);*/
-            const otpCode = await OtpService.generateOtp(otpType);
-            await OtpService.sendOtpEmail(email, otpCode);
+            const otpCode = await OtpService.generateOtp(otpType,receiverId);
+            await OtpService.sendOtpEmail(receiverId, otpCode);
             return sendSuccessResponse(res, 'OTP generated and sent successfully.');
         } catch (error) {
             return sendErrorResponse(res, 'Error generating OTP', 500, error.message || error);
@@ -18,11 +19,11 @@ class OtpController {
     }
     async verifyOtp(req, res) {
         try {
-            const { otp, otpType } = req.body;
+            const { otp, receiverId,otpType } = req.body;
             /*if (!mongoose.Types.ObjectId.isValid(userId)) {
                 throw new Error('Invalid MongoDB ID');
             }*/
-            const isValid = await OtpService.verifyOtp(otp, otpType);
+            const isValid = await OtpService.verifyOtp(otp, receiverId,otpType);
             if (!isValid) {
                 return sendErrorResponse(res, 'Invalid or expired OTP', 400);
             }
