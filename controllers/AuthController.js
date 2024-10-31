@@ -93,7 +93,7 @@ class AuthController {
             const { email,otpType } = req.body;
             const user = await UserService.findByEmail(email);
             if (!user) return sendErrorResponse(res, 'User not found', 404);
-            const otpCode = await OtpService.generateOtp(otpType);
+            const otpCode = await OtpService.generateOtp(otpType,email);
             await OtpService.sendOtpEmail(email, otpCode);
             return sendSuccessResponse(res, 'OTP sent to email for password reset');
         } catch (error) {
