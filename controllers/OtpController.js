@@ -23,6 +23,7 @@ class OtpController {
             /*if (!mongoose.Types.ObjectId.isValid(userId)) {
                 throw new Error('Invalid MongoDB ID');
             }*/
+            console.log(req.body)
             const isValid = await OtpService.verifyOtp(otp, receiverId,otpType);
             if (!isValid) {
                 return sendErrorResponse(res, 'Invalid or expired OTP', 400);
