@@ -5,7 +5,7 @@ class OtpRepository {
         return await otp.save();
     }
     async findOtp(otp, receiverId,otpType) {
-        return await Otp.findOne({otp,receiverId, otpType });
+        return await Otp.findOne({otp,otpType,receiverId });
     }
 }
 

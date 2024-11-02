@@ -15,6 +15,7 @@ class OtpService {
 
     async verifyOtp(otp, receiverId,otpType) {
         const storedOtp = await OtpRepository.findOtp(otp,receiverId, otpType);
+        console.log(storedOtp)
         if (!storedOtp ||
             storedOtp.expiresAt < new Date() ||
             storedOtp.status === 'used') {
