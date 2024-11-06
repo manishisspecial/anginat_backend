@@ -9,18 +9,27 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
 const otpRoutes = require('./routes/otpRoutes');
 const leadRoutes = require('./routes/leadRoutes');
-
 dotenv.config();
 const app = express();
-// Middleware
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://learning.anginat.com',
+];
+
 const corsOptions = {
-    origin: '*',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
-app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,15 +39,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/lead', leadRoutes);
 
-
 // Routes
-
-
-// Error Handling
-app.use(errorMiddleware);
 app.get('/', (req, res) => {
     res.send('Server is Running! 🚀');
 });
+
+
+app.use(errorMiddleware);
 
 // 404 Not Found Handler
 app.use((req, res) => {
