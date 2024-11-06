@@ -147,9 +147,10 @@ class AuthController {
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                sameSite: 'None',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
+
 
             return sendSuccessResponse(res, 'Login successful', { accessToken });
         } catch (error) {
@@ -159,6 +160,7 @@ class AuthController {
 
     async refreshToken(req, res) {
         const { refreshToken } = req.cookies;
+        console.log(req.cookies);
         if (!refreshToken) {
             return sendErrorResponse(res, 'Refresh token not found', 401);
         }
