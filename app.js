@@ -14,7 +14,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'https://learning.anginat.com',
-    'https://springlearns.com',
+    'https://www.springlearns.com',
 ];
 
 const corsOptions = {
