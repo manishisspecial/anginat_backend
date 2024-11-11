@@ -35,7 +35,7 @@ const LeadSchema = new Schema({
     status: {
         type: String,
         enum: {
-            values: ['Pending', 'Approved', 'Rejected'],
+            values: ['Pending', 'Approved', 'Rejected','Trashed'],
             message: 'Status must be either Pending, Approved, or Rejected',
         },
         default: 'Pending',
