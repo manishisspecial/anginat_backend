@@ -38,7 +38,6 @@ class AuthController {
                 return sendErrorResponse(res, 'User with this phone already exists.', 400);
             }
 
-
             const institution = await InstitutionService.findOrCreateInstitution(
                 institutionData,
                 { session }
