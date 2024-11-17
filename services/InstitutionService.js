@@ -5,9 +5,19 @@ class InstitutionService {
     async findOrCreateInstitution(institutionData) {
         let institution = await InstitutionRepository.findByName(institutionData.email);
         if (!institution) {
+            const institutionCode = await this.generateInstitutionCode();
+            institutionData.institutionCode = institutionCode;
             institution = await InstitutionRepository.createInstitution(institutionData);
         }
         return institution;
+    }
+    async generateInstitutionCode() {
+        try {
+            return await InstitutionRepository.generateInstitutionCode();
+        } catch (error) {
+            console.error("Error finding user by institution:", error.message || error);
+            throw new Error('Error finding user by institution');
+        }
     }
     async findById(id) {
         try {
