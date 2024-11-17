@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const institutionSchema = new mongoose.Schema({
     institutionType: { type: String, enum: ['school', 'institute'], required: true },
+    institutionCode: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     name: {
         type: String,
         required: true,
