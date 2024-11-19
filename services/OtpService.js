@@ -15,6 +15,7 @@ class OtpService {
         return otpCode;
     }
     async verifyOtp(otp, receiverId, otpType) {
+        console.log(otp,receiverId,otpType)
         const storedOtp = await OtpRepository.findOtp(otp, receiverId, otpType);
         if (!storedOtp || storedOtp.expiresAt < new Date() || storedOtp.status === 'used') {
             return false;
@@ -23,6 +24,7 @@ class OtpService {
         await storedOtp.save();
         return true;
     }
+
     async sendOtpEmail(email, otpCode) {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         if (!email || !otpCode) {

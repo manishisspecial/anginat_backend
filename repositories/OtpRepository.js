@@ -4,8 +4,9 @@ class OtpRepository {
         const otp = new Otp(otpData);
         return await otp.save();
     }
-    async findOtp(otp, receiverId,otpType) {
-        return await Otp.findOne({otp,otpType,receiverId });
+    async findOtp(otp,receiverId,otpType) {
+        console.log(otp,receiverId,otpType)
+        return await Otp.findOne({otp,receiverId,otpType});
     }
 }
 

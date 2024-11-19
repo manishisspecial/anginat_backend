@@ -4,9 +4,7 @@ const LeadController = require('../controllers/LeadController');
 const { verifyToken, hasAccess } = require('../middlewares/authMiddleware');
 
 // Create lead - accessible to sales, admin, manager
-router.post('/create', [
-    verifyToken,
-], LeadController.createLead);
+router.post('/create', LeadController.createLead);
 
 // Get leads - accessible to all authenticated users
 router.get('/leads', [

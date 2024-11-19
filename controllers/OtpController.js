@@ -7,9 +7,8 @@ class OtpController {
     async generateOtp(req, res) {
         try {
             const { receiverId, otpType } = req.body;
-
             const otpCode = await OtpService.generateOtp(otpType, receiverId);
-
+            //await OtpService.sendOtpSms(receiverId, otpCode);
             if (otpType === "email") {
                 await OtpService.sendOtpEmail(receiverId, otpCode);
             } else if (otpType === "phone") {
