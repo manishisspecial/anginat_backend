@@ -15,6 +15,7 @@ const allowedOrigins = [
     'http://localhost:5173',
     'https://learning.anginat.com',
     'https://www.springlearns.com',
+    'https://testing.d2uojw7xfu916c.amplifyapp.com'
 ];
 
 const corsOptions = {
@@ -37,8 +38,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
-app.use('/api/otp', otpRoutes);
-app.use('/api/lead', leadRoutes);
+app.use('/api/auth/otp', otpRoutes);
+app.use('/api/auth/lead', leadRoutes);
 
 // Routes
 app.get('/', (req, res) => {
