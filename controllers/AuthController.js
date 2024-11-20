@@ -158,6 +158,32 @@ class AuthController {
             return sendErrorResponse(res, 'Internal Server Error', 500, error.message || error);
         }
     }
+    async getInstitutionInfo(req, res) {
+        try {
+            const userInstitution = req.user.institution;
+            const institution = await InstitutionService.findById(userInstitution);
+            if (!institution || institution.status !== 'active') {
+                return sendErrorResponse(res, 'User\'s institution is inactive', 403);
+            }
+            return sendSuccessResponse(res, 'successful', institution);
+        } catch (error) {
+            return sendErrorResponse(res, 'Internal Server Error', 500, error.message || error);
+        }
+    }
+    async getUserInfo(req, res) {
+        try {
+            const id = req.user.id;
+            const user = await UserService.findById(id);
+            if (!user) {
+                return sendErrorResponse(res, 'User Not found', 403);
+            }
+            const { password, ...userWithoutPassword } = user.toObject ? user.toObject() : user;
+            return sendSuccessResponse(res, 'successful', userWithoutPassword);
+        } catch (error) {
+            return sendErrorResponse(res, 'Internal Server Error', 500, error.message || error);
+        }
+    }
+
 
     async refreshToken(req, res) {
         const { refreshToken } = req.cookies;
