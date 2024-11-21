@@ -1,26 +1,34 @@
 const Institution = require('../models/Institution');
 const User = require("../models/User");
 class InstitutionRepository {
-    async  generateInstitutionCode() {
+    async generateInstitutionCode() {
         const currentYear = new Date().getFullYear();
+        const currentYearSuffix = currentYear % 100;
         const lastInstitution = await Institution.findOne({
-            institutionCode: { $regex: `^AL_${currentYear}` }
+            institutionCode: { $regex: `^AL_${currentYearSuffix}_` }
         }).sort({ institutionCode: -1 }).limit(1);
         let newCode = '';
         if (lastInstitution) {
             const lastCode = lastInstitution.institutionCode;
             const match = lastCode.match(/^AL_(\d{2})_(\d{4})$/);
             if (match) {
-                const year = match[1];
-                const number = match[2];
-                const incrementedNumber = (parseInt(number, 10) + 1).toString().padStart(4, '0');
-                newCode = `AL_${year}_${incrementedNumber}`;
+                const yearSuffix = match[1];
+                const lastNumber = match[2];
+                if (parseInt(yearSuffix, 10) === currentYearSuffix) {
+                    const incrementedNumber = (parseInt(lastNumber, 10) + 1).toString().padStart(4, '0');
+                    newCode = `AL_${currentYearSuffix}_${incrementedNumber}`;
+                } else {
+                    newCode = `AL_${currentYearSuffix}_0001`;
+                }
+            } else {
+                newCode = `AL_${currentYearSuffix}_0001`;
             }
         } else {
-            newCode = `AL_${currentYear % 100}_${'0001'}`;
+            newCode = `AL_${currentYearSuffix}_0001`;
         }
         return newCode;
     }
+
     async findByName(email) {
         return await Institution.findOne({ email });
     }
