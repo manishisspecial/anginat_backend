@@ -9,8 +9,13 @@ class LeadService {
         return await LeadRepository.getLeads(query);
     }
 
-    async updateLeadStatus(leadId, status) {
-        return await LeadRepository.updateLeadStatus(leadId, status);
+    async updateLead(leadId, updateData) {
+        try {
+            const updatedLead = await LeadRepository.updateLead(leadId, updateData);
+            return updatedLead;
+        } catch (error) {
+            throw new Error('Failed to update lead');
+        }
     }
 
     async updateBulkStatus(leadIds, status) {

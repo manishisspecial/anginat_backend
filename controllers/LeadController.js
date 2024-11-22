@@ -58,6 +58,28 @@ class LeadController {
             return sendErrorResponse(res, 'Error retrieving leads', 500, error.message);
         }
     }
+    async updateLead(req, res) {
+        try {
+            const { leadId, updateData } = req.body;
+            const userRole = req.user.role;
+            if (userRole !== 'admin' && userRole !== 'super-admin') {
+                return sendErrorResponse(res, 'Permission denied', 403);
+            }
+            const allowedFields = ['course', 'applicantName', 'phoneNumber', 'email', 'status'];
+            const invalidFields = Object.keys(updateData).filter(field => !allowedFields.includes(field));
+
+            if (invalidFields.length > 0) {
+                return sendErrorResponse(res, `Invalid fields: ${invalidFields.join(', ')}`, 400);
+            }
+            const updatedLead = await LeadService.updateLead(leadId, updateData);
+            return sendSuccessResponse(res, 'Lead updated successfully', { updatedLead });
+
+        } catch (error) {
+            console.error("Update Lead Error:", { message: error.message, stack: error.stack });
+            return sendErrorResponse(res, 'Error updating lead', 500, error.message);
+        }
+    }
+
     async updateLeadStatus(req, res) {
         try {
             const { leadId, status } = req.body;

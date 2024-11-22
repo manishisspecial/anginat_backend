@@ -10,8 +10,13 @@ class LeadRepository {
         return await Lead.find(query).populate('institution');
     }
 
-    async updateLeadStatus(leadId, status) {
-        return await Lead.findByIdAndUpdate(leadId, { status }, { new: true });
+    async updateLead(leadId, updateData) {
+        try {
+            const updatedLead = await Lead.findByIdAndUpdate(leadId, updateData, { new: true });
+            return updatedLead;
+        } catch (error) {
+            throw new Error('Error updating lead in repository');
+        }
     }
 
     async updateBulkStatus(leadIds, status) {
