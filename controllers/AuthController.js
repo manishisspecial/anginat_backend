@@ -183,8 +183,6 @@ class AuthController {
             return sendErrorResponse(res, 'Internal Server Error', 500, error.message || error);
         }
     }
-
-
     async refreshToken(req, res) {
         const { refreshToken } = req.cookies;
         console.log(req.cookies);
@@ -220,9 +218,6 @@ class AuthController {
             return sendErrorResponse(res, 'Failed to log out', 500, error.message || error);
         }
     }
-
-
-
 }
 
 module.exports = new AuthController();

@@ -16,7 +16,7 @@ router.get('/leads', [
 router.patch('/lead/status', [
     verifyToken,
     hasAccess(['admin', 'super-admin'])
-], LeadController.updateLeadStatus);
+], LeadController.updateLead);
 
 // Bulk update lead status - restricted to admin only
 router.patch('/leads/bulk-status', [
