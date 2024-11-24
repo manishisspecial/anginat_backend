@@ -79,22 +79,6 @@ class LeadController {
             return sendErrorResponse(res, 'Error updating lead', 500, error.message);
         }
     }
-
-    async updateLeadStatus(req, res) {
-        try {
-            const { leadId, status } = req.body;
-            const userRole = req.user.role;
-
-            if (userRole === 'admin'  ||  userRole === 'super-admin') {
-                const updatedLead = await LeadService.updateLeadStatus(leadId, status);
-                return sendSuccessResponse(res, 'Lead status updated successfully', { updatedLead });
-            }
-
-        } catch (error) {
-            console.error("Update Lead Status Error:", { message: error.message, stack: error.stack });
-            return sendErrorResponse(res, 'Error updating lead status', 500, error.message);
-        }
-    }
     async updateBulkStatus(req, res) {
         try {
             const { leadIds, status } = req.body;

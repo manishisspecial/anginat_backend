@@ -5,11 +5,9 @@ class LeadRepository {
     async createLead(data) {
         return await Lead.create(data);
     }
-
     async getLeads(query = {}) {
         return await Lead.find(query).populate('institution');
     }
-
     async updateLead(leadId, updateData) {
         try {
             const updatedLead = await Lead.findByIdAndUpdate(leadId, updateData, { new: true });
