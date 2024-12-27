@@ -28,7 +28,7 @@
     "nodemailer": "^6.7.2",
     "nodemailer-express-handlebars": "^6.1.0",
     "razorpay": "^2.9.2",
-    "shortid": "^2.2.16",
+    "shortid": "^2.2.8",
     "unirest": "^0.6.0",
     "uuid": "^8.3.2"
   },
