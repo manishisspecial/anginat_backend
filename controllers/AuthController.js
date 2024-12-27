@@ -87,6 +87,62 @@ class AuthController {
             session.endSession();
         }
     }
+    async createUser(req, res) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        console.log(req.body);
+        try {
+            const { email, phoneNumber, username, password, role,status,institutionId } = req.body;
+            const existingUserByEmail = await UserService.findByEmail(email);
+            if (existingUserByEmail) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'User with this email already exists.', 400);
+            }
+            const existingUserByUsername = await UserService.findByUsername(username);
+            if (existingUserByUsername) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'User with this username already exists.', 400);
+            }
+            const existingUserByPhone = await UserService.findByPhone(phoneNumber);
+            if (existingUserByPhone) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'User with this phone already exists.', 400);
+            }
+            const user = await UserService.createUser({
+                email,
+                phoneNumber,
+                username,
+                password,
+                role,
+                status,
+                institutionId: institutionId
+            }, { session });
+
+            if (!user) {
+                await session.abortTransaction();
+                return sendErrorResponse(res, 'Failed to create user.', 500);
+            }
+            await session.commitTransaction();
+            return sendSuccessResponse(res, 'User successfully registered.', user);
+
+        } catch (error) {
+            await session.abortTransaction();
+            if (error.code === 11000) {
+                const field = Object.keys(error.keyValue)[0];
+                const errorMessage = field === 'phoneNumber'
+                    ? 'Phone number already exists.'
+                    : `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.`;
+                return sendErrorResponse(res, errorMessage, 400);
+            }
+            console.error("Registration Error:", {
+                message: error.message || error,
+                stack: error.stack
+            });
+            return sendErrorResponse(res, 'Internal Server Error', 500, error.message || error);
+        } finally {
+            session.endSession();
+        }
+    }
     async forgotPassword(req, res) {
         try {
             const { email,otpType } = req.body;
