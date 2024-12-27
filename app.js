@@ -14,16 +14,10 @@ const instituteRouter = require("./routes/instituteRoutes");
 dotenv.config();
 const app = express();
 const allowedOrigins = [
-<<<<<<< Updated upstream
-    'http://localhost:5173',
-    'https://learning.anginat.com',
-    'https://www.springlearns.com',
-    'https://testing.d2uojw7xfu916c.amplifyapp.com'
-=======
   "http://localhost:5173",
   "https://learning.anginat.com",
   "https://www.springlearns.com",
->>>>>>> Stashed changes
+  "https://testing.d2uojw7xfu916c.amplifyapp.com",
 ];
 
 const corsOptions = {
@@ -44,18 +38,12 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
-<<<<<<< Updated upstream
-app.use(morgan('dev'));
-app.use('/api/auth', authRoutes);
-app.use('/api/auth/otp', otpRoutes);
-app.use('/api/auth/lead', leadRoutes);
-=======
+
 app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/lead", leadRoutes);
 app.use("/api/institute", instituteRouter);
->>>>>>> Stashed changes
 
 // Routes
 app.get("/", (req, res) => {
