@@ -16,7 +16,7 @@ const verifyToken = (req, res, next) => {
       role: decoded.role,
       institution: decoded.institution,
     };
-    console.log("accessToken is verified ", decoded);
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
@@ -30,8 +30,7 @@ const hasAccess = (requiredRoles) => (req, res, next) => {
   if (!Array.isArray(requiredRoles)) {
     requiredRoles = [requiredRoles];
   }
-  console.log("Required Roles:", requiredRoles);
-  console.log("User Role:", req.user.role);
+
   if (!requiredRoles.includes(req.user.role)) {
     return res.status(403).json({ message: "Forbidden" });
   }
