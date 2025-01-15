@@ -44,6 +44,19 @@ class InstitutionService {
             throw new Error('Error finding user by institution');
         }
     }
-}
+
+    async findAndUpdateInstitute(id,institutionData){
+        try {
+            const institute = await InstitutionRepository.findById(id)
+            if(!institute){
+                throw new Error("Institute Not Found")
+            }
+            
+            return await InstitutionRepository.updateInstituteDetails(id,institutionData)
+        } catch (error) {
+            throw new Error('Error updating instituion');
+        }
+    }
+} 
 
 module.exports = new InstitutionService();

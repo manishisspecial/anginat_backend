@@ -1,6 +1,7 @@
 const User = require('../models/User');
 
 class UserRepository {
+
     async findByPhone(phoneNumber) {
         return await User.findOne({ phoneNumber });
     }
@@ -24,18 +25,23 @@ class UserRepository {
             throw new Error('Error finding user by email'); // Pass a custom error up the call chain
         }
     }
+
     async findByUsername(username) {
         return await User.findOne({ username });
     }
+
     async findById(id) {
         return await User.findOne({ id });
     }
+
     async findByIdentifier(identifier) {
         return User.findOne({$or: [{email: identifier}, {username: identifier}]});
     }
+
     async updatePassword(email, updateData) {
         return User.findOneAndUpdate({email}, updateData, { new: true });
     }
+
     async createUser(userData) {
         const user = new User(userData);
         return await user.save();

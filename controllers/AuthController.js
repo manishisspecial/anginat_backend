@@ -202,8 +202,9 @@ class AuthController {
     }
   async updatePassword(req, res) {
     try {
-      const { email, newPassword } = req.body;
-      const user = await UserService.updatePassword(email, newPassword);
+      const { email, newPassword , currentPassword } = req.body;
+      const user = await UserService.updatePassword(email,currentPassword, newPassword);
+      console.log("User from controller : ",user)
       if (!user) return sendErrorResponse(res, "User not found", 404);
       return sendSuccessResponse(res, "Password updated successfully");
     } catch (error) {

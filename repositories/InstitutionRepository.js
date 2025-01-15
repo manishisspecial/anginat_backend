@@ -58,6 +58,22 @@ class InstitutionRepository {
         const institution = new Institution(institutionData);
         return await institution.save();
     }
+
+    async updateInstituteDetails(id,institutionData){
+        try {
+   
+            const institution = await Institution.findOneAndUpdate({ _id:id },institutionData, { new: true });
+            if (!institution) {
+                return null;
+            }
+     
+            return institution;
+        } catch (error) {
+            
+        }
+    }
+
+
 }
 
 module.exports = new InstitutionRepository();

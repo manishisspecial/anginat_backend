@@ -13,6 +13,8 @@ class UserService {
             throw new Error('Error creating user');
         }
     }
+
+
     async findById(id) {
         try {
             return await UserRepository.findById(id);
@@ -22,10 +24,27 @@ class UserService {
         }
     }
 
-    async updatePassword(email, newPassword) {
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        return UserRepository.updatePassword(email, { password: hashedPassword });
+
+    async updatePassword(email, currentPassword, newPassword) {
+
+    const user = await UserRepository.findByEmail(email)
+    console.log("User found:",user)
+
+    if (!user) {
+        throw new Error("User not found");
     }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+        throw new Error("Invalid current password");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    return await UserRepository.updatePassword(email, { password: hashedPassword });
+
+}
+
 
     async login(emailOrUsername, password) {
         const user = await UserRepository.findByEmail(emailOrUsername) ||
