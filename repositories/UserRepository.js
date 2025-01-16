@@ -42,6 +42,10 @@ class UserRepository {
         return User.findOneAndUpdate({email}, updateData, { new: true });
     }
 
+    async updateDetails(institutionId,updateData){
+        return User.findOneAndUpdate({institutionId:institutionId},updateData, {new:true})
+    }
+
     async createUser(userData) {
         const user = new User(userData);
         return await user.save();

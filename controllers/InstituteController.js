@@ -65,7 +65,7 @@ class InstituteController {
       if (!req.file) {
         return sendErrorResponse(res, "No file uploaded", 400);
       }
-
+      
       const fileSize = req.file.size;
 
       // File size validation (500KB limit)
