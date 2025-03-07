@@ -14,6 +14,7 @@ class OtpService {
         });
         return otpCode;
     }
+    
     async verifyOtp(otp, receiverId, otpType) {
         console.log(otp,receiverId,otpType)
         const storedOtp = await OtpRepository.findOtp(otp, receiverId, otpType);

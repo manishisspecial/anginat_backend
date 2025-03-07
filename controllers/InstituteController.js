@@ -3,6 +3,7 @@ const imagekit = require("../utils/imageKit");
 const { sendErrorResponse, sendSuccessResponse } = require("../utils/response");
 
 class InstituteController {
+  
   async getInstituteDetails(req, res) {
     try {
       const { instituteId } = req.params;
@@ -19,7 +20,7 @@ class InstituteController {
         {
           institute: instituteData,
         }
-      );
+      );  
     } catch (error) {
       return sendErrorResponse(
         res,
@@ -65,7 +66,7 @@ class InstituteController {
       if (!req.file) {
         return sendErrorResponse(res, "No file uploaded", 400);
       }
-      
+
       const fileSize = req.file.size;
 
       // File size validation (500KB limit)
@@ -84,9 +85,7 @@ class InstituteController {
           400
         );
       }
-
-
-
+      
       // Perform specific actions based on the file type
       if (fileType === "profile") {
         const uploadResponse = await imagekit.upload({

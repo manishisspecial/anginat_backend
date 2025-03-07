@@ -70,14 +70,14 @@ class InstitutionRepository {
   async updateInstituteDetails(id, institutionData) {
     try {
       const institution = await Institution.findOneAndUpdate(
-        { _id: id },
+        { _id: id },+
         institutionData,
         { new: true }
       );
       if (!institution) {
         return null;
       }
-
+      
       if (institutionData.email) {
         const updatedUser =await UserRepository.updateDetails(id, {
           email: institution.email,
