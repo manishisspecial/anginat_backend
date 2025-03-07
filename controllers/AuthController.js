@@ -37,6 +37,7 @@ class AuthController {
           400
         );
       }
+      
       const existingInstitutionByDomain = await InstitutionService.findByDomain(
         institutionData.domainName
       );
@@ -48,6 +49,7 @@ class AuthController {
           400
         );
       }
+
       const existingInstitutionByEmail =
         await InstitutionService.findByInstitutionEmail(institutionData.email);
       if (existingInstitutionByEmail) {
@@ -202,8 +204,9 @@ class AuthController {
     }
   async updatePassword(req, res) {
     try {
-      const { email, newPassword } = req.body;
-      const user = await UserService.updatePassword(email, newPassword);
+      const { email, newPassword , currentPassword } = req.body;
+      const user = await UserService.updatePassword(email,currentPassword, newPassword);
+      console.log("User from controller : ",user)
       if (!user) return sendErrorResponse(res, "User not found", 404);
       return sendSuccessResponse(res, "Password updated successfully");
     } catch (error) {
@@ -307,7 +310,9 @@ class AuthController {
       );
     }
   }
+
   async refreshToken(req, res) {
+
     const { refreshToken } = req.cookies;
     console.log(req.cookies);
     if (!refreshToken) {
@@ -323,16 +328,20 @@ class AuthController {
       if (!user) {
         return sendErrorResponse(res, "Invalid refresh token", 403);
       }
+      
       const accessToken = jwt.sign(
         { userId: user._id, role: user.role, institution: user.institutionId },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
+
       return sendSuccessResponse(res, "Token refreshed", { accessToken });
+
     } catch (error) {
       return sendErrorResponse(res, "Invalid or expired refresh token", 403);
     }
   }
+
   async logout(req, res) {
     try {
       res.clearCookie("refreshToken", {

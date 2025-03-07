@@ -44,6 +44,12 @@ const institutionSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active'
     },
+    profileUrl:{
+        type:String
+    },
+    coverUrl:{
+        type:String
+    },
     createdAt: {
         type: Date,
         default: Date.now

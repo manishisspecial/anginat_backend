@@ -1,0 +1,23 @@
+networks:
+  microservices-network:
+    external: true
+
+services:
+  admin-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: admin-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - microservices-network
+
+
+
+
+
+

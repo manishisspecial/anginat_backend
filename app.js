@@ -42,7 +42,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload());
+// app.use(fileUpload());
 
 app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
