@@ -15,6 +15,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
+  "http://localhost:3000",
   "http://localhost:5173",
   "wss://back-end.anginat.com", // Local WebSocket connection
   "https://learning.anginat.com",
