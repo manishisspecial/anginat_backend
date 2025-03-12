@@ -2,6 +2,8 @@ const LeadService = require("../services/LeadService");
 const Institution = require("../models/Institution");
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const wsManager = require("../socket/websocketServer");
+const { sendEmail } = require("../services/SendgridService");
+const contactUsTemplate = require("../utils/contactUsTemplate");
 class LeadController {
   async createLead(req, res) {
     try {
@@ -128,6 +130,41 @@ class LeadController {
       return sendErrorResponse(
         res,
         "Error updating lead statuses",
+        500,
+        error.message
+      );
+    }
+  }
+
+  async createContactLead(req, res) {
+    const data = req.body;
+
+    if (!data.email || !data.name) {
+      return sendErrorResponse(
+        res,
+        `Email and name field is required`,
+        400
+      );
+    }
+    
+    try {
+
+      const lead = await LeadService.createContactLead(data)
+      await sendEmail({
+        recipientEmail: data.email,
+        subject: "Contact Us Lead",
+        text: "Contact Us Lead",
+        html: contactUsTemplate({
+          name: data.name,
+          email: data.email,
+          message: data.message,
+        }),
+      });
+      return sendSuccessResponse(res, "Contact Us Form Submitted",lead);
+    } catch (error) {
+      return sendErrorResponse(
+        res,
+        "Error Submitting contact us form",
         500,
         error.message
       );

@@ -24,4 +24,6 @@ router.patch('/leads/bulk-status', [
     hasAccess(['admin','super-admin'])
 ], LeadController.updateBulkStatus);
 
+router.post('/contact-us',LeadController.createContactLead)
+
 module.exports = router;

@@ -1,8 +1,14 @@
 const LeadRepository = require('../repositories/LeadRepository');
+const contactUsTemplate = require('../utils/contactUsTemplate');
+
 
 class LeadService {
     async createLead(data) {
         return await LeadRepository.createLead(data);
+    }
+
+    async createContactLead(data){
+        return await LeadRepository.createContactLead(data);
     }
 
     async getLeads(query) {
@@ -21,6 +27,7 @@ class LeadService {
     async updateBulkStatus(leadIds, status) {
         return await LeadRepository.updateBulkStatus(leadIds, status);
     }
-}
 
+
+}
 module.exports = new LeadService();

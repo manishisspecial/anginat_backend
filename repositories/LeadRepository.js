@@ -1,10 +1,16 @@
 // repositories/LeadRepository.js
+const ContactLead = require('../models/ContactLead');
 const Lead = require('../models/Lead');
 
 class LeadRepository {
     async createLead(data) {
         return await Lead.create(data);
     }
+
+    async createContactLead(data){
+        return await ContactLead.create(data)
+    }
+    
     async getLeads(query = {}) {
         return await Lead.find(query).populate('institution');
     }
