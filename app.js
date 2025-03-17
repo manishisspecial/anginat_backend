@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5172",
   "http://localhost:5173",
-  "https://www.anginatlearning.com/",
+  "https://www.anginatlearning.com",
   "wss://back-end.anginat.com", // Local WebSocket connection
   "https://learning.anginat.com",
   "wss://learning.anginat.com", // WebSocket connection for this domain
