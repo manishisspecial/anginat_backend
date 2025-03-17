@@ -4,6 +4,7 @@ const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const wsManager = require("../socket/websocketServer");
 const { sendEmail } = require("../services/SendgridService");
 const contactUsTemplate = require("../utils/contactUsTemplate");
+require("dotenv").config();
 class LeadController {
   async createLead(req, res) {
     try {
@@ -150,8 +151,10 @@ class LeadController {
     try {
 
       const lead = await LeadService.createContactLead(data)
+ 
+
       await sendEmail({
-        recipientEmail: data.email,
+        recipientEmail: process.env.OTP_EMAIL,
         subject: "Contact Us Lead",
         text: "Contact Us Lead",
         html: contactUsTemplate({
