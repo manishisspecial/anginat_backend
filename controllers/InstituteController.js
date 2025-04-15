@@ -165,7 +165,7 @@ class InstituteController {
 
       return sendSuccessResponse(
         res,
-        "User and institution registered successfully.",
+        "Institution found successfully",
         {
           institute: instituteData,
         }
