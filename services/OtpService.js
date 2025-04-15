@@ -4,6 +4,7 @@ const unirest = require("unirest");
 const sgMail = require("@sendgrid/mail");
 const axios = require("axios")
 class OtpService {
+    
   async generateOtp(otpType, receiverId) {
     const otpCode = this._generateOtpCode();
     const otp = await OtpRepository.createOtp({

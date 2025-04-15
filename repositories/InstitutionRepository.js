@@ -70,7 +70,7 @@ class InstitutionRepository {
   async updateInstituteDetails(id, institutionData) {
     try {
       const institution = await Institution.findOneAndUpdate(
-        { _id: id },+
+        { _id: id },
         institutionData,
         { new: true }
       );

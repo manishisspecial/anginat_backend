@@ -19,6 +19,7 @@ class InstitutionService {
             throw new Error('Error finding user by institution');
         }
     }
+    
     async findById(id) {
         try {
             const institution = await InstitutionRepository.findById(id);
@@ -28,6 +29,7 @@ class InstitutionService {
             throw new Error('Error finding institution');
         }
     }
+
     async findByDomain(domain) {
         try {
             return await InstitutionRepository.findByDomain(domain);

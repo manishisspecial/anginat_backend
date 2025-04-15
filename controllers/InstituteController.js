@@ -78,13 +78,7 @@ class InstituteController {
       const fileType = req.body.type;
 
       // Ensure a valid file type is provided (either 'profile' or 'cover')
-      if (!fileType || (fileType !== "profile" && fileType !== "cover")) {
-        return sendErrorResponse(
-          res,
-          "Invalid file type. Must be 'profile' or 'cover'.",
-          400
-        );
-      }
+  
       
       // Perform specific actions based on the file type
       if (fileType === "profile") {
@@ -151,6 +145,32 @@ class InstituteController {
       }
     } catch (error) {
       console.log(res);
+      return sendErrorResponse(
+        res,
+        "Internal Server Error",
+        500,
+        error.message || error
+      );
+    }
+  }
+
+  async getInstituteByDomain(req, res) {
+    try {
+      const { instituteDomain } = req.body;
+      const instituteData = await InstitutionService.findByDomain(instituteDomain);
+
+      if (!instituteData) {
+        return sendErrorResponse(res, "Institute Not Found", 400);
+      }
+
+      return sendSuccessResponse(
+        res,
+        "User and institution registered successfully.",
+        {
+          institute: instituteData,
+        }
+      );  
+    } catch (error) {
       return sendErrorResponse(
         res,
         "Internal Server Error",
