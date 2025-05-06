@@ -81,6 +81,7 @@ class LeadController {
       );
     }
   }
+  
   async updateLead(req, res) {
     try {
       const { leadId, updateData } = req.body;

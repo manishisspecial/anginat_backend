@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const institutionSchema = new mongoose.Schema({
-    institutionType: { type: String, enum: ['school', 'institute'], required: true },
+    institutionType: { type: String, enum: ['school', 'institute' , 'college'], required: true },
     institutionCode: {
         type: String,
         required: true,
