@@ -81,6 +81,7 @@ class LeadController {
       );
     }
   }
+  
   async updateLead(req, res) {
     try {
       const { leadId, updateData } = req.body;
@@ -137,6 +138,50 @@ class LeadController {
     }
   }
 
+  async createInstituteContactUs(req,res){
+    const data = req.body
+
+    if(!data.email || !data.receiverEmail){
+      return sendErrorResponse(
+        res,
+        `email is required`,
+        400
+      );
+    }
+    
+    if (!data.firstName || !data.lastName || !data.message || !data.phoneNumber) {
+      return sendErrorResponse(
+        res,
+        `Name, phone number and message field is required`,
+        400
+      );
+    }
+
+    try {
+ 
+      await sendEmail({
+        recipientEmail: data.receiverEmail,
+        subject: "Contact Us Lead",
+        text: "Contact Us Lead",
+        html: contactUsTemplate({
+          name: data.firstName + " " + data.lastName,
+          email: data.email,
+          message: data.message,
+          phoneNumber: data.phoneNumber,
+        })
+      }); 
+
+      return sendSuccessResponse(res, "Contact Us Form Submitted");
+    } catch (error) {
+      return sendErrorResponse(
+        res,
+        "Error Submitting contact us form",
+        500,
+        error.message
+      );
+    }
+  }
+
   async createContactLead(req, res) {
     const data = req.body;
 
@@ -150,8 +195,6 @@ class LeadController {
     
     try {
 
-      const lead = await LeadService.createContactLead(data)
- 
 
       await sendEmail({
         recipientEmail: process.env.OTP_EMAIL,
@@ -160,7 +203,7 @@ class LeadController {
         html: contactUsTemplate({
           name: data.name,
           email: data.email,
-          message: data.message,
+          message: data.message
         }),
       });
       return sendSuccessResponse(res, "Contact Us Form Submitted",lead);

@@ -21,7 +21,7 @@ class OtpController {
         } catch (error) {
             return sendErrorResponse(res, 'Error generating OTP', 500, error.message || error);
         }
-    }
+    } 
 
     async verifyOtp(req, res) {
         try {

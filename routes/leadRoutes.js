@@ -25,5 +25,6 @@ router.patch('/leads/bulk-status', [
 ], LeadController.updateBulkStatus);
 
 router.post('/contact-us',LeadController.createContactLead)
+router.post('/institute-contact-form',LeadController.createInstituteContactUs)
 
 module.exports = router;
