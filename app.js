@@ -53,6 +53,9 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/lead", leadRoutes);
 app.use("/api/institute", instituteRouter);
 
+app.get('/__vite_ping', (req, res) => {
+  res.sendStatus(200); // respond OK to silence the 404
+});
 // Routes
 app.get("/", (req, res) => {
   res.send("Server is Running! 🚀");

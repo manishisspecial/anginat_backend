@@ -15,9 +15,9 @@ class LevelRepository {
 
   async updateLevel(levelId, levelData, institutionId) {
     return Level.findOneAndUpdate(
-      { _id: levelId, institution: institutionId },
-      levelData,
-      { new: true }
+        { _id: levelId, institution: institutionId },
+        levelData,
+        { new: true }
     ).populate('institution', 'name');
   }
 
