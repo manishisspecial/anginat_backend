@@ -1,28 +1,23 @@
 const User = require('../models/User');
 
 class UserRepository {
-
     async findByPhone(phoneNumber) {
         return await User.findOne({ phoneNumber });
     }
 
     async findByEmail(email) {
         try {
-            console.log(`Attempting to find user by email: ${email}`); // Log the email being queried
-
-            // Query the database
+            console.log(`Attempting to find user by email: ${email}`);
             const user = await User.findOne({ email });
-
             if (!user) {
                 console.error(`No user found with email: ${email}`);
-                return null; // or handle this case according to your logic
+                return null;
             }
-
-            console.log(`User found: ${JSON.stringify(user)}`); // Log the found user data for debugging
+            console.log(`User found: ${JSON.stringify(user)}`);
             return user;
         } catch (error) {
-            console.error(`Error occurred while finding user by email: ${email}`, error); // Detailed error logging
-            throw new Error('Error finding user by email'); // Pass a custom error up the call chain
+            console.error(`Error occurred while finding user by email: ${email}`, error);
+            throw new Error('Error finding user by email');
         }
     }
 
@@ -31,24 +26,24 @@ class UserRepository {
     }
 
     async findById(id) {
-        return await User.findOne({ id });
+        return await User.findById(id); // Fixed to use findById
     }
 
     async findByIdentifier(identifier) {
-        return User.findOne({$or: [{email: identifier}, {username: identifier}]});
+        return await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
     }
 
-    async updatePassword(email, updateData) {
-        return User.findOneAndUpdate({email}, updateData, { new: true });
+    async updatePassword(email, updateData, options = {}) {
+        return await User.findOneAndUpdate({ email }, updateData, { new: true, ...options });
     }
 
-    async updateDetails(institutionId,updateData){
-        return User.findOneAndUpdate({institutionId:institutionId},updateData, {new:true})
+    async updateDetails(institutionId, updateData) {
+        return await User.findOneAndUpdate({ institutionId }, updateData, { new: true });
     }
 
-    async createUser(userData) {
+    async createUser(userData, options = {}) {
         const user = new User(userData);
-        return await user.save();
+        return await user.save(options);
     }
 }
 

@@ -36,25 +36,6 @@ class SectionService {
     }
     return section;
   }
-
-  async addCourseToSection(sectionId, courseId, institutionId) {
-    const section = await SectionRepository.addCourseToSection(sectionId, courseId, institutionId);
-    if (!section) {
-      throw new Error("Section not found, does not belong to your institution, or course already exists");
-    }
-    return section;
-  }
-
-  async removeCourseFromSection(sectionId, courseId, institutionId) {
-    if (!mongoose.Types.ObjectId.isValid(courseId)) {
-      throw new Error("Invalid course ID");
-    }
-    const section = await SectionRepository.removeCourseFromSection(sectionId, courseId, institutionId);
-    if (!section) {
-      throw new Error("Section not found or does not belong to your institution");
-    }
-    return section;
-  }
 }
 
 module.exports = new SectionService();
