@@ -1,25 +1,19 @@
+// services/UserService.js
 const UserRepository = require('../repositories/UserRepository');
 const bcrypt = require('bcryptjs');
 
 class UserService {
-    async createUser(userData, options = {}) {
+    async createUser(userData) {
         try {
-            // Validate name for instructors
-            if (userData.role === 'instructor' && !userData.name) {
-                throw new Error('Name is required for instructors');
-            }
-            // Validate institutionId for specific roles
-            if (['instructor', 'admin', 'super-admin'].includes(userData.role) && !userData.institutionId) {
-                throw new Error('Institution ID is required for this role');
-            }
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             userData.password = hashedPassword;
-            return await UserRepository.createUser(userData, options);
+            return await UserRepository.createUser(userData);
         } catch (error) {
             console.error("Error creating user:", error.message || error);
-            throw error; // Let controller handle specific error messages
+            throw new Error('Error creating user');
         }
     }
+
 
     async findById(id) {
         try {
@@ -30,38 +24,37 @@ class UserService {
         }
     }
 
+
     async updatePassword(email, currentPassword, newPassword) {
-        try {
-            const user = await UserRepository.findByEmail(email);
-            if (!user) {
-                throw new Error("User not found");
-            }
-            const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-            if (!isPasswordValid) {
-                throw new Error("Invalid current password");
-            }
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            // Use runValidators: false to avoid validation issues for existing users
-            return await UserRepository.updatePassword(email, { password: hashedPassword }, { runValidators: false });
-        } catch (error) {
-            console.error("Error updating password:", error.message || error);
-            throw error;
-        }
+
+    const user = await UserRepository.findByEmail(email)
+    console.log("User found:",user)
+
+    if (!user) {
+        throw new Error("User not found");
     }
 
-    async login(emailOrUsername, password) {
-        try {
-            const user = await UserRepository.findByEmail(emailOrUsername) ||
-                await UserRepository.findByUsername(emailOrUsername);
-            if (!user || !(await bcrypt.compare(password, user.password))) {
-                return null;
-            }
-            return user;
-        } catch (error) {
-            console.error("Error during login:", error.message || error);
-            throw new Error('Error during login');
-        }
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+        throw new Error("Invalid current password");
     }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    return await UserRepository.updatePassword(email, { password: hashedPassword });
+
+}
+
+
+    async login(emailOrUsername, password) {
+        const user = await UserRepository.findByEmail(emailOrUsername) ||
+            await UserRepository.findByUsername(emailOrUsername);
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return null;
+        }
+        return user;
+    }
+
 
     async findByEmail(email) {
         try {
@@ -71,15 +64,15 @@ class UserService {
             throw new Error('Error finding user by email');
         }
     }
-
     async findByUsername(username) {
         try {
             return await UserRepository.findByUsername(username);
         } catch (error) {
-            console.error("Error finding user by username:", error.message || error);
+            console.error("Error finding user by usernname:", error.message || error);
             throw new Error('Error finding user by username');
         }
     }
+
 
     async findByPhone(phoneNumber) {
         try {
@@ -89,6 +82,8 @@ class UserService {
             throw new Error('Error finding user by phone');
         }
     }
+
 }
+
 
 module.exports = new UserService();
