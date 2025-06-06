@@ -1,6 +1,7 @@
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const DegreeService = require("../services/DegreeService");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const InstitutionService = require("../services/InstitutionService");
 
 class DegreeController {
   async createDegree(req, res) {
@@ -10,29 +11,43 @@ class DegreeController {
     }
     try {
       const degreeData = req.body;
-      const { institution } = degreeData;
       const institutionId = req.user?.institution;
+      const institutionType = req.user?.institutionType;
       if (!institutionId || !mongoose.Types.ObjectId.isValid(institutionId)) {
         throw new Error("Invalid institution ID from authentication");
       }
-      if (!institution || institution !== institutionId) {
-        throw new Error("Institution mismatch or not provided");
-      }
-      const newDegree = await DegreeService.createDegree(degreeData);
+
+      if (institutionType !== "college") {
+        throw new Error("Only colleges are allowed to create degrees");
+      } 
+
+      const newDegree = await DegreeService.createDegree({
+        institution: institutionId,
+        ...degreeData,
+      });
       sendSuccessResponse(res, "Degree created successfully", newDegree);
     } catch (error) {
       console.error("Error in createDegree:", error);
       sendErrorResponse(
         res,
-        error.message === "Name, shortCode, duration, totalSemesters, and institution are required" ? "Required fields missing" :
-        error.message === "Institution mismatch or not provided" ? "Institution mismatch" :
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-        error.message.includes("duplicate key error") ? "Degree with this name already exists" :
-        "Failed to create degree",
+        error.message ===
+          "Name, shortCode, duration, totalSemesters, and institution are required"
+          ? "Required fields missing"
+          : error.message === "Institution mismatch or not provided"
+          ? "Institution mismatch"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : error.message.includes("duplicate key error")
+          ? "Degree with this name already exists"
+          : "Failed to create degree",
         error.message === "Required fields missing" ||
-        error.message === "Institution mismatch or not provided" ? 400 :
-        error.message === "Invalid institution ID from authentication" ? 401 :
-        error.message.includes("duplicate key error") ? 409 : 500,
+          error.message === "Institution mismatch or not provided"
+          ? 400
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : error.message.includes("duplicate key error")
+          ? 409
+          : 500,
         error.message
       );
     }
@@ -55,25 +70,34 @@ class DegreeController {
       console.error("Error in getDegreeById:", error);
       sendErrorResponse(
         res,
-        error.message === "Invalid degree ID" ? "Invalid degree ID" :
-        error.message === "Degree not found or does not belong to your institution" ? "Degree not found" :
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-        "Failed to retrieve degree",
-        error.message === "Invalid degree ID" ? 400 :
-        error.message === "Degree not found or does not belong to your institution" ? 404 :
-        error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message === "Invalid degree ID"
+          ? "Invalid degree ID"
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? "Degree not found"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to retrieve degree",
+        error.message === "Invalid degree ID"
+          ? 400
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }
   }
 
   async getAllDegrees(req, res) {
-    console.log(req)
+    console.log(req);
     if (!res) {
       console.error("Response object is undefined in getAllDegrees");
       return;
     }
-    console.log('test')
+    console.log("test");
     try {
       const institutionId = req.user?.institution;
       if (!institutionId || !mongoose.Types.ObjectId.isValid(institutionId)) {
@@ -85,9 +109,12 @@ class DegreeController {
       console.error("Error in getAllDegrees:", error);
       sendErrorResponse(
         res,
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-        "Failed to retrieve degrees",
-        error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to retrieve degrees",
+        error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }
@@ -108,23 +135,39 @@ class DegreeController {
       if (degreeData.institution && degreeData.institution !== institutionId) {
         throw new Error("Institution mismatch");
       }
-      const updatedDegree = await DegreeService.updateDegree(degreeId, degreeData, institutionId);
+      const updatedDegree = await DegreeService.updateDegree(
+        degreeId,
+        degreeData,
+        institutionId
+      );
       sendSuccessResponse(res, "Degree updated successfully", updatedDegree);
     } catch (error) {
       console.error("Error in updateDegree:", error);
       sendErrorResponse(
         res,
-        error.message === "Invalid degree ID" ? "Invalid degree ID" :
-        error.message === "Degree not found or does not belong to your institution" ? "Degree not found" :
-        error.message === "Institution mismatch" ? "Institution mismatch" :
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-        error.message.includes("duplicate key error") ? "Degree with this name already exists" :
-        "Failed to update degree",
+        error.message === "Invalid degree ID"
+          ? "Invalid degree ID"
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? "Degree not found"
+          : error.message === "Institution mismatch"
+          ? "Institution mismatch"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : error.message.includes("duplicate key error")
+          ? "Degree with this name already exists"
+          : "Failed to update degree",
         error.message === "Invalid degree ID" ||
-        error.message === "Institution mismatch" ? 400 :
-        error.message === "Degree not found or does not belong to your institution" ? 404 :
-        error.message === "Invalid institution ID from authentication" ? 401 :
-        error.message.includes("duplicate key error") ? 409 : 500,
+          error.message === "Institution mismatch"
+          ? 400
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : error.message.includes("duplicate key error")
+          ? 409
+          : 500,
         error.message
       );
     }
@@ -141,19 +184,31 @@ class DegreeController {
         throw new Error("Invalid institution ID from authentication");
       }
       const { degreeId } = req.params;
-      const deletedDegree = await DegreeService.deleteDegree(degreeId, institutionId);
+      const deletedDegree = await DegreeService.deleteDegree(
+        degreeId,
+        institutionId
+      );
       sendSuccessResponse(res, "Degree deleted successfully", deletedDegree);
     } catch (error) {
       console.error("Error in deleteDegree:", error);
       sendErrorResponse(
         res,
-        error.message === "Invalid degree ID" ? "Invalid degree ID" :
-        error.message === "Degree not found or does not belong to your institution" ? "Degree not found" :
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-        "Failed to delete degree",
-        error.message === "Invalid degree ID" ? 400 :
-        error.message === "Degree not found or does not belong to your institution" ? 404 :
-        error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message === "Invalid degree ID"
+          ? "Invalid degree ID"
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? "Degree not found"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to delete degree",
+        error.message === "Invalid degree ID"
+          ? 400
+          : error.message ===
+            "Degree not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }

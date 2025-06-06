@@ -58,8 +58,39 @@ const SubjectSchema = new Schema({
 // Ensure unique subject code per institution
 SubjectSchema.index({ institution: 1, code: 1 }, { unique: true });
 
-// Index for degree-specific queries
-SubjectSchema.index({ institution: 1, degree: 1 });
+SubjectSchema.pre('save', async function (next) {
+  try {
+    // Check degree institution
+    if (this.degree) {
+      const Degree = mongoose.model('Degree');
+      const degreeDoc = await Degree.findById(this.degree);
+      if (!degreeDoc) {
+        return next(new Error('Degree not found'));
+      }
+      if (degreeDoc.institution.toString() !== this.institution.toString()) {
+        return next(new Error('Degree must belong to the same institution as Subject'));
+      }
+    }
+
+    // Check each instructor's institution
+    if (this.instructors && this.instructors.length > 0) {
+      const User = mongoose.model('User');
+      const instructors = await User.find({ _id: { $in: this.instructors } });
+      if (instructors.length !== this.instructors.length) {
+        return next(new Error('One or more instructors not found'));
+      }
+      for (const instructor of instructors) {
+        if (!instructor.institutionId || instructor.institutionId.toString() !== this.institution.toString()) {
+          return next(new Error('All instructors must belong to the same institution as Subject'));
+        }
+      }
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Prevent OverwriteModelError
 module.exports = mongoose.models.Subject || mongoose.model('Subject', SubjectSchema);

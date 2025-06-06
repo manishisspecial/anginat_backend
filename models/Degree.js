@@ -36,7 +36,7 @@ const DegreeSchema = new Schema({
 }, { timestamps: true });
 
 // Ensure unique degree name per institution
-DegreeSchema.index({ institution: 1, name: 1 }, { unique: true });
+DegreeSchema.index({ institution: 1, name: 1 , shortCode :1}, { unique: true });
 
 // Prevent OverwriteModelError
 module.exports = mongoose.models.Degree || mongoose.model('Degree', DegreeSchema);

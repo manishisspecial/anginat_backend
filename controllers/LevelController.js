@@ -1,6 +1,6 @@
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const LevelService = require("../services/LevelService");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Institution = require("../models/Institution");
 
 class LevelController {
@@ -21,8 +21,12 @@ class LevelController {
       console.error("Error in getAllLevels:", error);
       sendErrorResponse(
         res,
-        error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" : "Failed to retrieve levels",
-        error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to retrieve levels",
+        error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }
@@ -45,11 +49,18 @@ class LevelController {
       console.error("Error in getLevelById:", error);
       sendErrorResponse(
         res,
-        error.message === "Level not found or does not belong to your institution" ? "Level not found" :
-          error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-            "Failed to retrieve level",
-        error.message === "Level not found or does not belong to your institution" ? 404 :
-          error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? "Level not found"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to retrieve level",
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }
@@ -86,23 +97,35 @@ class LevelController {
       console.error("Error in createLevel:", error);
       sendErrorResponse(
         res,
-        error.message === "Institution is required" ? "Institution is required" :
-          error.message === "Invalid institution ID" ? "Invalid institution ID" :
-            error.message === "Institution not found" ? "Institution not found" :
-              error.message === "Cannot create level for another institution" ? "Unauthorized institution" :
-                error.message === "levelNumber, name, and category are required" ? "Required fields missing" :
-                  error.message === "Invalid category" ? "Invalid category" :
-                    error.message.includes("duplicate key error") ? "Level with this institution, category, and levelNumber already exists" :
-                      error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-                        "Failed to create level",
+        error.message === "Institution is required"
+          ? "Institution is required"
+          : error.message === "Invalid institution ID"
+          ? "Invalid institution ID"
+          : error.message === "Institution not found"
+          ? "Institution not found"
+          : error.message === "Cannot create level for another institution"
+          ? "Unauthorized institution"
+          : error.message === "levelNumber, name, and category are required"
+          ? "Required fields missing"
+          : error.message === "Invalid category"
+          ? "Invalid category"
+          : error.message.includes("duplicate key error")
+          ? "Level with this institution, category, and levelNumber already exists"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to create level",
         error.message === "Institution is required" ||
-        error.message === "Invalid institution ID" ||
-        error.message === "Institution not found" ||
-        error.message === "Cannot create level for another institution" ||
-        error.message === "levelNumber, name, and category are required" ||
-        error.message === "Invalid category" ? 400 :
-          error.message === "Invalid institution ID from authentication" ? 401 :
-            error.message.includes("duplicate key error") ? 409 : 500,
+          error.message === "Invalid institution ID" ||
+          error.message === "Institution not found" ||
+          error.message === "Cannot create level for another institution" ||
+          error.message === "levelNumber, name, and category are required" ||
+          error.message === "Invalid category"
+          ? 400
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : error.message.includes("duplicate key error")
+          ? 409
+          : 500,
         error.message
       );
     }
@@ -127,30 +150,49 @@ class LevelController {
         if (levelData.institution !== institutionId) {
           throw new Error("Cannot update level to another institution");
         }
-        const institutionExists = await Institution.findById(levelData.institution);
+        const institutionExists = await Institution.findById(
+          levelData.institution
+        );
         if (!institutionExists) {
           throw new Error("Institution not found");
         }
       }
-      const updatedLevel = await LevelService.updateLevel(levelId, levelData, institutionId);
+      const updatedLevel = await LevelService.updateLevel(
+        levelId,
+        levelData,
+        institutionId
+      );
       sendSuccessResponse(res, "Level updated successfully", updatedLevel);
     } catch (error) {
       console.error("Error in updateLevel:", error);
       sendErrorResponse(
         res,
-        error.message === "Level not found or does not belong to your institution" ? "Level not found" :
-          error.message === "Invalid institution ID" ? "Invalid institution ID" :
-            error.message === "Institution not found" ? "Institution not found" :
-              error.message === "Cannot update level to another institution" ? "Unauthorized institution" :
-                error.message.includes("duplicate key error") ? "Level with this institution, category, and levelNumber already exists" :
-                  error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-                    "Failed to update level",
-        error.message === "Level not found or does not belong to your institution" ? 404 :
-          error.message === "Invalid institution ID" ||
-          error.message === "Institution not found" ||
-          error.message === "Cannot update level to another institution" ? 400 :
-            error.message === "Invalid institution ID from authentication" ? 401 :
-              error.message.includes("duplicate key error") ? 409 : 500,
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? "Level not found"
+          : error.message === "Invalid institution ID"
+          ? "Invalid institution ID"
+          : error.message === "Institution not found"
+          ? "Institution not found"
+          : error.message === "Cannot update level to another institution"
+          ? "Unauthorized institution"
+          : error.message.includes("duplicate key error")
+          ? "Level with this institution, category, and levelNumber already exists"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to update level",
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID" ||
+            error.message === "Institution not found" ||
+            error.message === "Cannot update level to another institution"
+          ? 400
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : error.message.includes("duplicate key error")
+          ? 409
+          : 500,
         error.message
       );
     }
@@ -167,17 +209,27 @@ class LevelController {
         throw new Error("Invalid institution ID from authentication");
       }
       const { levelId } = req.params;
-      const deletedLevel = await LevelService.deleteLevel(levelId, institutionId);
+      const deletedLevel = await LevelService.deleteLevel(
+        levelId,
+        institutionId
+      );
       sendSuccessResponse(res, "Level deleted successfully", deletedLevel);
     } catch (error) {
       console.error("Error in deleteLevel:", error);
       sendErrorResponse(
         res,
-        error.message === "Level not found or does not belong to your institution" ? "Level not found" :
-          error.message === "Invalid institution ID from authentication" ? "Invalid institution ID" :
-            "Failed to delete level",
-        error.message === "Level not found or does not belong to your institution" ? 404 :
-          error.message === "Invalid institution ID from authentication" ? 401 : 500,
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? "Level not found"
+          : error.message === "Invalid institution ID from authentication"
+          ? "Invalid institution ID"
+          : "Failed to delete level",
+        error.message ===
+          "Level not found or does not belong to your institution"
+          ? 404
+          : error.message === "Invalid institution ID from authentication"
+          ? 401
+          : 500,
         error.message
       );
     }

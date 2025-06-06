@@ -45,11 +45,11 @@ const userSchema = new mongoose.Schema({
     institutionId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Institution',
-        required: function() { return ['instructor', 'admin', 'super-admin'].includes(this.role); }
+        required: true
     },
     role: {
         type: String,
-        enum: ['student', 'instructor', 'admin', 'super-admin'],
+        enum: ['instructor', 'admin', 'super-admin'],
         required: true
     },
     status: {

@@ -1,0 +1,4 @@
+
+
+
+institution -> degree -> academicClass -> sections and subject -> semester

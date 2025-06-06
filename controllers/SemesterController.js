@@ -6,11 +6,18 @@ class SemesterController {
         try {
             const data = {
                 ...req.body,
-                institution: req.user.institutionId,
+                institution: req.user.institution,
             };
+            const institutionType = req.user.institutionType;
+
+            if (institutionType !== 'college') {
+                throw new Error('Only colleges can create semesters');
+            }
+
             const semester = await SemesterService.createSemester(data);
             return sendSuccessResponse(res, 'Semester created successfully', semester, 201);
         } catch (error) {
+            console.error('Error in createSemester:', error);
             return sendErrorResponse(res, error.message, error.status || 400);
         }
     }
@@ -18,7 +25,7 @@ class SemesterController {
     async getSemesterById(req, res) {
         try {
             const { id } = req.params;
-            const semester = await SemesterService.getSemesterById(id, req.user.institutionId);
+            const semester = await SemesterService.getSemesterById(id, req.user.institution);
             return sendSuccessResponse(res, 'Semester retrieved successfully', semester);
         } catch (error) {
             return sendErrorResponse(res, error.message, error.status || 400);
@@ -35,6 +42,7 @@ class SemesterController {
             const result = await SemesterService.getAllSemesters({ page, limit, filters });
             return sendSuccessResponse(res, 'Semesters retrieved successfully', result);
         } catch (error) {
+            console.error('Error in getAllSemesters:', error);
             return sendErrorResponse(res, error.message, error.status || 400);
         }
     }
@@ -43,7 +51,7 @@ class SemesterController {
         try {
             const { id } = req.params;
             const data = req.body;
-            const semester = await SemesterService.updateSemester(id, data, req.user.institutionId);
+            const semester = await SemesterService.updateSemester(id, data, req.user.institution);
             return sendSuccessResponse(res, 'Semester updated successfully', semester);
         } catch (error) {
             return sendErrorResponse(res, error.message, error.status || 400);
@@ -53,7 +61,7 @@ class SemesterController {
     async deleteSemester(req, res) {
         try {
             const { id } = req.params;
-            await SemesterService.deleteSemester(id, req.user.institutionId);
+            await SemesterService.deleteSemester(id, req.user.institution);
             return sendSuccessResponse(res, 'Semester deleted successfully', null);
         } catch (error) {
             return sendErrorResponse(res, error.message, error.status || 400);

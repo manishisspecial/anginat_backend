@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose; // ✅ You must add this line
+const { Schema } = mongoose; // ✅You must add this line
 
 const LevelSchema = new Schema({
   institution: { type: Schema.Types.ObjectId, ref: 'Institution', required: true },
@@ -12,3 +12,4 @@ const LevelSchema = new Schema({
 LevelSchema.index({ institution: 1, category: 1, levelNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("Level", LevelSchema);
+

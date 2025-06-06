@@ -1,4 +1,4 @@
-const Semester = require('../models/Semester');
+const Semester = require("../models/Semester");
 
 class SemesterRepository {
     async create(data) {
@@ -8,14 +8,16 @@ class SemesterRepository {
 
     async findById(id) {
         return Semester.findOne({ _id: id, isDeleted: false })
-            .populate('institution academicClass courses')
+            .populate("institution academicClass courses degree")
             .exec();
     }
 
-    async find(query) {
+    async find(query, skip = 0, limit = 10) {
         return Semester.find(query)
             .active()
-            .populate('institution academicClass courses')
+            .skip(skip)
+            .limit(limit)
+            .populate("institution academicClass courses degree")
             .exec();
     }
 
@@ -29,7 +31,7 @@ class SemesterRepository {
             { $set: data },
             { new: true, runValidators: true }
         )
-            .populate('institution academicClass courses')
+            .populate("institution academicClass courses degree")
             .exec();
     }
 }

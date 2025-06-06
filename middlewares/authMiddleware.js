@@ -18,6 +18,7 @@ const verifyToken = (req, res, next) => {
       id: decoded.id,
       role: decoded.role,
       institution: decoded.institution,
+      institutionType:decoded.institutionType
     };
 
     next();

@@ -15,7 +15,8 @@ class TimetableRepository {
             .populate('section', 'name')
             .populate('subject', 'name code')
             .populate('degree', 'name shortCode')
-            .populate('instructor', 'name email role');
+            .populate('instructor', 'name email role')
+            .populate('semester', 'name startDate endDate');
     }
 
     async getAllTimetables(institutionId) {
@@ -25,7 +26,8 @@ class TimetableRepository {
             .populate('section', 'name')
             .populate('subject', 'name code')
             .populate('degree', 'name shortCode')
-            .populate('instructor', 'name email role');
+            .populate('instructor', 'name email role')
+            .populate('semester', 'name startDate endDate');
     }
 
     async updateTimetable(timetableId, timetableData, institutionId) {
@@ -39,7 +41,8 @@ class TimetableRepository {
             .populate('section', 'name')
             .populate('subject', 'name code')
             .populate('degree', 'name shortCode')
-            .populate('instructor', 'name email role');
+            .populate('instructor', 'name email role')
+            .populate('semester', 'name startDate endDate')
     }
 
     async deleteTimetable(timetableId, institutionId) {
