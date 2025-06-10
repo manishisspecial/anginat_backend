@@ -6,19 +6,13 @@ class UserRepository {
     }
 
     async findByEmail(email) {
-        try {
-            console.log(`Attempting to find user by email: ${email}`);
+
+
+            // Query the database
             const user = await User.findOne({ email });
-            if (!user) {
-                console.error(`No user found with email: ${email}`);
-                return null;
-            }
-            console.log(`User found: ${JSON.stringify(user)}`);
+
             return user;
-        } catch (error) {
-            console.error(`Error occurred while finding user by email: ${email}`, error);
-            throw new Error('Error finding user by email');
-        }
+ 
     }
 
     async findByUsername(username) {

@@ -154,6 +154,7 @@ class InstituteController {
     }
   }
 
+
   async getInstituteByDomain(req, res) {
     try {
       const { instituteDomain } = req.body;

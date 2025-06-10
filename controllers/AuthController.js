@@ -4,6 +4,7 @@ const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const OtpService = require("../services/OtpService");
+const UserRepository = require("../repositories/UserRepository");
 
 class AuthController {
   async register(req, res) {
@@ -58,6 +59,7 @@ class AuthController {
           400
         );
       }
+
 
       const existingInstitutionByDomain = await InstitutionService.findByDomain(
         institutionData.domainName
@@ -450,6 +452,65 @@ class AuthController {
         500,
         error.message || error
       );
+    }
+  }
+
+  async verifyToken(req, res) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        valid: false,
+        message: "No token provided or incorrect format",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+      
+
+      return sendSuccessResponse(res, "Token Verified", {
+        valid: true,
+        decoded,
+      });
+    } catch (error) {
+      console.error(error);
+      return sendErrorResponse(
+        res,
+        "Invalid or expired token",
+        401,
+        error.message || error
+      );
+    }
+  }
+
+  async findUser(req, res) {
+    try {
+      const { username, email, phoneNumber } = req.body;
+
+      let user = null;
+      if (username) {
+        user = await UserRepository.findByUsername(username);
+      } else if (email) {
+        user = await UserRepository.findByEmail(email);
+      } else if (phoneNumber) {
+        user = await UserRepository.findByPhone(phoneNumber);
+      } else {
+        return sendErrorResponse(res, "Provide username, email, or phoneNumber", 400);
+      }
+
+      if (!user) return sendSuccessResponse(res, "User not found", null);
+
+      // Remove password field if it exists
+      const userObj = user.toObject ? user.toObject() : user;
+      delete userObj.password;
+
+      return sendSuccessResponse(res, "User found", userObj);
+    } catch (error) {
+      console.error("Error occurred while finding user:", error);
+      return sendErrorResponse(res, "Error finding user", 500, error.message || error);
     }
   }
 }

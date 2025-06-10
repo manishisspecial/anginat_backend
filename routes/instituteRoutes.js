@@ -20,6 +20,11 @@ router
   .get(InstituteController.getInstituteDetails);
 router
   .route("/update-details/:instituteId")
+router.route('/get-institute/:instituteId')
+  .get(InstituteController.getInstituteDetails)
+
+
+router.route('/update-details/:instituteId')
   .post(verifyToken, InstituteController.updateInstituteDetails);
 router
   .route("/upload/:instituteId")

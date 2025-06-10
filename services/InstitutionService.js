@@ -38,14 +38,7 @@ class InstitutionService {
             throw new Error('Error finding user by username');
         }
     }
-    async findByInstitutionEmail(email) {
-        try {
-            return await InstitutionRepository.findByInstitutionEmail(email);
-        } catch (error) {
-            console.error("Error finding user by institution:", error.message || error);
-            throw new Error('Error finding user by institution');
-        }
-    }
+
 
     async findAndUpdateInstitute(id,institutionData){
         try {

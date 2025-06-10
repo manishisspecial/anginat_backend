@@ -43,15 +43,10 @@ class InstitutionRepository {
   async findByDomain(domainName) {
     return await Institution.findOne({ domainName });
   }
+
   async findByInstitutionEmail(email) {
     try {
-      console.log(`Attempting to find institution by email: ${email}`);
       const institution = await Institution.findOne({ email });
-      if (!institution) {
-        console.error(`No institution found with email: ${email}`);
-        return null;
-      }
-      console.log(`Institution found: ${JSON.stringify(institution)}`);
       return institution;
     } catch (error) {
       console.error(
@@ -77,12 +72,12 @@ class InstitutionRepository {
       if (!institution) {
         return null;
       }
-      
+
       if (institutionData.email) {
-        const updatedUser =await UserRepository.updateDetails(id, {
+        const updatedUser = await UserRepository.updateDetails(id, {
           email: institution.email,
         });
-        console.log("Updated User",updatedUser)
+        console.log("Updated User", updatedUser)
       }
       if (institution.phoneNumber) {
         await UserRepository.updateDetails(id, {
@@ -91,7 +86,7 @@ class InstitutionRepository {
       }
 
       return institution;
-    } catch (error) {}
+    } catch (error) { }
   }
 }
 
