@@ -8,12 +8,12 @@ const Semester = new Schema({
         required: [true, 'Institution is required'],
         index: true // Index for faster queries by institution
     },
-    degree:{
+    degree:{ 
         type:Schema.Types.ObjectId,
         ref: 'Degree', 
         required: [true, 'Degree is required'],
         index: true // Index for queries by degree
-    }, 
+    },  
     academicClass: {
         type: Schema.Types.ObjectId,
         ref: 'AcademicClass',
@@ -94,8 +94,9 @@ Semester.pre('save', async function(next) {
 
             if (overlapping) {
                 return next(new Error('Semester dates overlap with an existing semester for this academic class'));
-            }
-        }
+            } 
+
+        } 
 
         // Validate degree, academicClass, and all courses are from the same institution
         const Degree = mongoose.model('Degree');

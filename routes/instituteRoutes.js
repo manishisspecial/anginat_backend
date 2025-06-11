@@ -74,6 +74,7 @@ router.delete(
 // Subject routes
 router.post("/subjects", verifyToken, SubjectController.createSubject);
 router.get("/subjects", verifyToken, SubjectController.getAllSubjects);
+
 router.get(
   "/subjects/:subjectId",
   verifyToken,

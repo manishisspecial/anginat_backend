@@ -1,29 +1,26 @@
-const Level = require("../models/Level");
+const Lead = require('../models/Lead');
 
-class LevelRepository {
-  async createLevel(levelData) {
-    return Level.create(levelData);
-  }
+class LeadRepository {
+    async createLead(data) {
+        return await Lead.create(data);
+    }
 
-  async getLevelById(levelId, institutionId) {
-    return Level.findOne({ _id: levelId, institution: institutionId }).populate('institution', 'name');
-  }
+    async getLeads(query = {}) {
+        return await Lead.find(query).populate('institution');
+    }
 
-  async getAllLevels(institutionId) {
-    return Level.find({ institution: institutionId }).populate('institution', 'name');
-  }
-
-  async updateLevel(levelId, levelData, institutionId) {
-    return Level.findOneAndUpdate(
-      { _id: levelId, institution: institutionId },
-      levelData,
-      { new: true }
-    ).populate('institution', 'name');
-  }
-
-  async deleteLevel(levelId, institutionId) {
-    return Level.findOneAndDelete({ _id: levelId, institution: institutionId });
-  }
+    async updateLead(leadId, updateData) {
+        try {
+            const updatedLead = await Lead.findByIdAndUpdate(leadId, updateData, { new: true });
+            return updatedLead;
+        } catch (error) {
+            throw new Error('Error updating lead in repository');
+        }
+    }
+    
+    async updateBulkStatus(leadIds, status) {
+        return await Lead.updateMany({ _id: { $in: leadIds } }, { status });
+    }
 }
 
-module.exports = new LevelRepository();
+module.exports = new LeadRepository();
