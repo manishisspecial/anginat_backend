@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const OtpService = require('../services/OtpService');
 const UserService = require('../services/UserService');
 const { sendSuccessResponse, sendErrorResponse } = require('../utils/response');
@@ -21,7 +22,7 @@ class OtpController {
         } catch (error) {
             return sendErrorResponse(res, 'Error generating OTP', 500, error.message || error);
         }
-    } 
+    }
 
     async verifyOtp(req, res) {
         try {
@@ -30,6 +31,20 @@ class OtpController {
             if (!isValid) {
                 return sendErrorResponse(res, 'Invalid or expired OTP', 400);
             }
+            const verifiedToken = jwt.sign(
+                { email: receiverId },
+                process.env.VERIFY_OTP_SECRET,
+                { expiresIn: "10m" }
+            );
+
+            res.cookie("verifiedToken", verifiedToken, {
+                httpOnly: true,
+                secure: true, // Use secure cookies in production
+                sameSite: "None", // Required for cross-origin cookies
+                maxAge: 10 * 60 * 1000, // 10 minutes
+                path: "/",
+            });
+
             return sendSuccessResponse(res, 'OTP verified successfully.');
         } catch (error) {
             return sendErrorResponse(res, 'Error verifying OTP', 500, error.message || error);

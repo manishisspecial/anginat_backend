@@ -133,9 +133,8 @@ class AuthController {
         const errorMessage =
           field === "phoneNumber"
             ? "Phone number already exists"
-            : `${
-                field.charAt(0).toUpperCase() + field.slice(1)
-              } already exists`;
+            : `${field.charAt(0).toUpperCase() + field.slice(1)
+            } already exists`;
         return sendErrorResponse(res, errorMessage, 400);
       }
       if (error.name === "ValidationError") {
@@ -246,9 +245,8 @@ class AuthController {
         const errorMessage =
           field === "phoneNumber"
             ? "Phone number already exists"
-            : `${
-                field.charAt(0).toUpperCase() + field.slice(1)
-              } already exists`;
+            : `${field.charAt(0).toUpperCase() + field.slice(1)
+            } already exists`;
         return sendErrorResponse(res, errorMessage, 400);
       }
       if (error.name === "ValidationError") {
@@ -289,14 +287,32 @@ class AuthController {
   }
 
   async updatePassword(req, res) {
+    const { email, newPassword } = req.body;
+    const verifiedToken = req.cookies.verifiedToken;
+    console.log("Verified Token:", verifiedToken);
+
+    if (!verifiedToken) {
+      return res
+        .status(400)
+        .json({ message: "Password reset token is missing" });
+    }
+
     try {
-      const { email, newPassword, currentPassword } = req.body;
+
+      const decoded = jwt.verify(verifiedToken, process.env.VERIFY_OTP_SECRET);
+      
       const user = await UserService.updatePassword(
         email,
-        currentPassword,
         newPassword
       );
       if (!user) return sendErrorResponse(res, "User not found", 404);
+
+      res.clearCookie("verifiedToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+      });
+
       return sendSuccessResponse(res, "Password updated successfully");
     } catch (error) {
       if (error.message === "Invalid current password") {
@@ -469,7 +485,7 @@ class AuthController {
     try {
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-      
+
 
       return sendSuccessResponse(res, "Token Verified", {
         valid: true,
