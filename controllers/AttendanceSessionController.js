@@ -6,7 +6,9 @@ const AttendanceSessionService = require("../services/AttendanceSessionService")
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/response");
 
 class AttendanceSessionController {
+
   async createAttendanceSession(req, res) {
+    
     try {
       const sessionData = req.body;
       const { institution } = req.user;
@@ -18,7 +20,7 @@ class AttendanceSessionController {
         return res.status(400).json({ error: error.details[0].message });
       }
 
-      // Validate ObjectIds
+      // Validate ObjectIds 
       const requiredIds = [
         { key: "timetable", value: sessionData.timetable },
         { key: "instructor", value: sessionData.instructor },
