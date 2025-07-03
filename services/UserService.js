@@ -86,6 +86,15 @@ class UserService {
             throw new Error('Error finding user by phone');
         }
     }
+
+    async updateUserData(userId, updateData) {
+        try {
+            return await UserRepository.updateUserData(userId, updateData);
+        } catch (error) {
+            console.error("Error updating user data:", error.message || error);
+            throw new Error('Error updating user data');
+        }
+    }
 }
 
 module.exports = new UserService();

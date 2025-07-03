@@ -1,6 +1,7 @@
 const express = require("express");
 const AuthController = require("../controllers/AuthController");
 const { verifyToken, hasAccess } = require("../middlewares/authMiddleware");
+const upload = require("../utils/multerConfig");
 const router = express.Router();
 
 
@@ -22,6 +23,8 @@ router.post(
   hasAccess(["admin"]),
   AuthController.createUser
 );
+
+router.post("/upload-profile-image", verifyToken,upload.single("profile"), AuthController.uploadProfileImage);
 
 
 module.exports = router;

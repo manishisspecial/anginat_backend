@@ -35,6 +35,16 @@ class UserRepository {
         return await User.findOneAndUpdate({ institutionId }, updateData, { new: true });
     }
 
+    async updateUserData(userId, updateData) {
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId },
+            updateData,
+            { new: true, runValidators: false }
+        ).select('-password'); // Exclude password field
+
+        return updatedUser;
+    }
+
     async createUser(userData, options = {}) {
         const user = new User(userData);
         return await user.save(options);

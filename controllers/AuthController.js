@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const OtpService = require("../services/OtpService");
 const UserRepository = require("../repositories/UserRepository");
+const imagekit = require("../utils/imageKit");
 
 class AuthController {
   async register(req, res) {
@@ -527,6 +528,74 @@ class AuthController {
     } catch (error) {
       console.error("Error occurred while finding user:", error);
       return sendErrorResponse(res, "Error finding user", 500, error.message || error);
+    }
+  }
+
+    async uploadProfileImage(req, res) {
+    try {
+      const { id: userId } = req.user; // Extracting studentId from the request object
+      const file = req.file;
+
+      if (!userId) {
+        return sendErrorResponse(res, "User ID is required", 400);
+      }
+
+      if (!file) {
+        return sendErrorResponse(res, "No file uploaded", 400);
+      }
+
+      const userExist = await UserService.findById(userId);
+     
+      if (!userExist) {
+        return sendErrorResponse(res, "User does not exist", 404);
+      }
+
+      const fileSize = req.file.size;
+
+      // Validate file type and size
+      const allowedMimeTypes = ["image/jpeg", "image/png"];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        return sendErrorResponse(
+          res,
+          "Invalid file type. Only JPEG and PNG are allowed.",
+          400
+        );
+      }
+      // File size validation (500KB limit)
+      if (fileSize > 1024 * 1024) {
+        return sendErrorResponse(res, "File size must not exceed 500KB", 400);
+      }
+
+      // Upload the image to ImageKit
+      const uploadResponse = await imagekit.upload({
+        file: file.buffer, // File buffer
+        fileName: `profile_${userId}_${Date.now()}`, // File name
+        folder: "student_profiles", // Folder in ImageKit
+      });
+
+
+      // Save the image URL in the StudentProfile
+      const updateUser = await UserService.updateUserData(
+        userId,
+        {
+          profileUrl: uploadResponse.url,
+        }
+      );
+
+      return sendSuccessResponse(
+        res,
+        "Profile image uploaded successfully",
+        updateUser
+      );
+      
+    } catch (error) {
+      console.error("Error uploading profile image:", error); // Log the error
+      return sendErrorResponse(
+        res,
+        "Error uploading profile image",
+        500,
+        error.message || error
+      );
     }
   }
 }

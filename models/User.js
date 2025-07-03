@@ -63,14 +63,21 @@ const userSchema = new mongoose.Schema({
         maxlength: [500, 'Bio cannot exceed 500 characters'],
         // Optional, for instructor profiles
     },
+
+    profileUrl:{
+        type: String,
+    },
+
     createdAt: {
         type: Date,
         default: Date.now
     },
+
     updatedAt: {
         type: Date,
         default: Date.now
     }
+    
 });
 
 // Update updatedAt on save
