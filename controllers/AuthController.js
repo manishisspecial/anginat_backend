@@ -438,18 +438,21 @@ class AuthController {
       if (!user) {
         return sendErrorResponse(res, "Invalid refresh token", 403);
       }
+      console.log("Decoded User:", decoded);
+
       const accessToken = jwt.sign(
         {
           id: user._id,
           role: user.role,
           institution: user.institutionId,
-          institutionType: institution.institutionType,
+          institutionType: decoded.institutionType,
         },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
       return sendSuccessResponse(res, "Token refreshed", { accessToken });
     } catch (error) {
+      console.log("Refresh Token Error:", error);
       return sendErrorResponse(res, "Invalid or expired refresh token", 403);
     }
   }
