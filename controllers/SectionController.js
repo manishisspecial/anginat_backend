@@ -92,6 +92,14 @@ class SectionController {
         throw new Error("Invalid section value");
       }
 
+      if (sectionData.subjects){
+        sectionData.subjects.map((subject) => {
+          if (!mongoose.Types.ObjectId.isValid(subject)) {
+            throw new Error("Invalid subject ID");
+          }
+        })
+      }
+
       const newSection = await SectionService.createSection({
         institution: institutionId,
         ...sectionData,

@@ -14,12 +14,21 @@ const AcademicClassSchema = new Schema(
       trim: true,
       minlength: [2, "Class name must be at least 2 characters long"],
     },    
-    classCode: { 
+    classCode: {
       type: String,
       required: [true, "Class code is required"],
-      trim: true,
-      // No enum here, as it depends on instituteType
-    }, 
+    },
+    academicYear: {
+      type: String,
+      required: [true, "Academic year is required"],
+      validate: {
+        validator: function (v) {
+          // Matches 4 digits, a dash, then 2 digits (e.g., 2024-25)
+          return /^\d{4}-\d{2}$/.test(v);
+        },
+        message: props => `${props.value} is not a valid academic year format (expected: YYYY-YY)`
+      }
+    },
     level: {
       type: Schema.Types.ObjectId,
       ref: "Level",
@@ -29,6 +38,28 @@ const AcademicClassSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Degree",
       // Optional, for degree-based classes like BCA Year 1
+    },
+    startTime:{
+      type: String,
+      required: [true, "Start time is required"],
+      validate: {
+        validator: function (v) {
+          // Matches HH:MM format
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        },
+        message: props => `${props.value} is not a valid time format (expected: HH:MM)`
+      }
+    },
+    endTime: {
+      type: String,
+      required: [true, "End time is required"],
+      validate: {
+        validator: function (v) {
+          // Matches HH:MM format
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        },
+        message: props => `${props.value} is not a valid time format (expected: HH:MM)`
+      }
     },
   },
   { timestamps: true }

@@ -22,13 +22,10 @@ const allowedOrigins = [
   "https://www.anginatlearning.com",
   "Anginatevents.com",
   "https://main.d2p986kto1ef06.amplifyapp.com",
-  "wss://back-end.anginat.com", // Local WebSocket connection
   "https://learning.anginat.com",
-  "wss://learning.anginat.com", // WebSocket connection for this domain
   "https://www.springlearns.com",
-  "wss://www.springlearns.com", // WebSocket connection for this domain
   "https://testing.d2uojw7xfu916c.amplifyapp.com",
-  "wss://testing.d2uojw7xfu916c.amplifyapp.com", // WebSocket connection for this domain
+  "https://ravneet.de9ljefa2nzpw.amplifyapp.com/"
 ];
 
 const corsOptions = {

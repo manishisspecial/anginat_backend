@@ -17,15 +17,25 @@ class SubjectController {
         throw new Error("Invalid institution ID from authentication");
       }
 
-      if (institutionType !== "college") {
-        throw new Error("Only college can able to create semester");
+      // Check for duplicate subject code in the same institution
+      const existingSubject = await SubjectService.findByCode(
+        subjectData.code,
+        institutionId
+      );
+      if (existingSubject) {
+        return sendErrorResponse(
+          res,
+          "Subject with this code already exists",
+          409,
+          "Duplicate subject code"
+        );
       }
 
       const newSubject = await SubjectService.createSubject({
         institution: institutionId,
         ...subjectData,
       });
-      
+
       sendSuccessResponse(res, "Subject created successfully", newSubject);
     } catch (error) {
       console.error("Error in createSubject:", error);

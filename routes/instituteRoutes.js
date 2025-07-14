@@ -152,13 +152,15 @@ router.post(
   verifyToken,
   hasAccess(["instructor", "admin"]),
   AttendanceSessionController.createAttendanceSession
-);
+); 
+
 router.post(
   "/attendance/mark",
   verifyToken,
   hasAccess(["instructor", "admin"]),
   AttendanceController.markAttendance
 );
+
 router.get("/attendance", verifyToken, hasAccess(["instructor","admin"]), AttendanceSessionController.getAttendanceSessions);
 
 module.exports = router;

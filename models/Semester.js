@@ -38,7 +38,7 @@ const Semester = new Schema({
         type: Date,
         required: [true, 'End date is required']
     },
-    courses: [{
+    subjects: [{
         type: Schema.Types.ObjectId,
         ref: 'Subject',
         validate: {

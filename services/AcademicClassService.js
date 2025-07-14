@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 
 class AcademicClassService {
   async createAcademicClass(classData) {
-    const { name, institution, level,classCode, degree } = classData;
-    if (!name || !classCode) {
-      throw new Error("Name and class code are required");
+    const { name, institution, level,academicYear,startTime,endTime,classCode, degree } = classData;
+    if (!name && !classCode && !academicYear && !startTime && !endTime) {
+      throw new Error("Name, academicYear, startTime, and endTime are required");
     }
     if (!level && !degree) {
       throw new Error("Either level or degree is required");

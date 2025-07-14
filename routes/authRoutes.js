@@ -14,8 +14,8 @@ router.get("/get-institution", verifyToken,AuthController.getInstitutionInfo);
 router.get("/get-user", verifyToken,AuthController.getUserInfo);
 router.post('/logout', AuthController.logout);
 router.get('/verify-token', AuthController.verifyToken);
+router.post('/find-user', AuthController.findUser); 
 
-router.post('/find-user', AuthController.findUser);   
 
 router.post(
   "/create-user",
@@ -23,6 +23,7 @@ router.post(
   hasAccess(["admin"]),
   AuthController.createUser
 );
+
 
 router.post("/upload-profile-image", verifyToken,upload.single("profile"), AuthController.uploadProfileImage);
 
