@@ -25,7 +25,7 @@ const allowedOrigins = [
   "https://learning.anginat.com",
   "https://www.springlearns.com",
   "https://testing.d2uojw7xfu916c.amplifyapp.com",
-  "https://ravneet.de9ljefa2nzpw.amplifyapp.com/"
+  "https://ravneet.de9ljefa2nzpw.amplifyapp.com"
 ];
 
 const corsOptions = {
