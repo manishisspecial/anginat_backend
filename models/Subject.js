@@ -32,7 +32,7 @@ const SubjectSchema = new Schema({
   classCode: {
     type: String,
     required: [true, 'Class code is required for school subjects'],
-    trim: true
+    trim:true
   },
   credits: {
     type: Number,
@@ -118,7 +118,7 @@ SubjectSchema.pre('validate', async function (next) {
       if (!this.degree) {
         return next(new Error('degree is required for college subjects'));
       }
-      this.classCode = undefined;
+    
       // Credits are allowed for college subjects, but not required
     }
 
