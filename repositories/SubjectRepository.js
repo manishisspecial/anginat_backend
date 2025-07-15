@@ -22,6 +22,10 @@ class SubjectRepository {
             .populate('instructors', 'name email role');
     }
 
+    async findByCode(code, institutionId) {
+        return Subject.findOne({ code, institution: institutionId });
+    }
+
     async updateSubject(subjectId, subjectData, institutionId) {
         return Subject.findOneAndUpdate(
             { _id: subjectId, institution: institutionId },

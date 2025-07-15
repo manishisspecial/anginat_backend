@@ -77,6 +77,13 @@ class SubjectService {
         return updatedSubject;
     }
 
+    async findByCode(code, institutionId) {
+        if (!code || !institutionId) {
+            throw new Error("Code and institution ID are required");
+        }
+        return SubjectRepository.findByCode(code, institutionId);
+    }
+
     async deleteSubject(subjectId, institutionId) {
         if (!mongoose.Types.ObjectId.isValid(subjectId)) {
             throw new Error("Invalid subject ID");
