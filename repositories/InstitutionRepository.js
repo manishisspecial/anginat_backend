@@ -1,7 +1,10 @@
 const Institution = require("../models/Institution");
 const User = require("../models/User");
 const UserRepository = require("./UserRepository");
+
+
 class InstitutionRepository {
+
   async generateInstitutionCode() {
     const currentYear = new Date().getFullYear();
     const currentYearSuffix = currentYear % 100;
@@ -37,9 +40,14 @@ class InstitutionRepository {
   async findByName(email) {
     return await Institution.findOne({ email });
   }
+
   async findById(id) {
-    return await Institution.findById(id);
+    return await Institution.findById(id)
+      .populate('subscription.planId')
+      .populate('customFeatures.featureId')
+      .lean();
   }
+  
   async findByDomain(domainName) {
     return await Institution.findOne({ domainName });
   }

@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         validate: {
-            validator: function(v) {
+            validator: function (v) {
                 return /^\S+@\S+\.\S+$/.test(v);
             },
             message: props => `${props.value} is not a valid email!`
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         validate: {
-            validator: function(v) {
+            validator: function (v) {
                 return /^\+?[1-9]\d{1,14}$/.test(v);
             },
             message: props => `${props.value} is not a valid phone number!`
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: function() { return this.role === 'instructor'; },
+        required: function () { return this.role === 'instructor'; },
         trim: true,
         minlength: [2, 'Name must be at least 2 characters long'],
         maxlength: [100, 'Name cannot exceed 100 characters']
@@ -52,6 +52,27 @@ const userSchema = new mongoose.Schema({
         enum: ['instructor', 'admin', 'super-admin'],
         required: true
     },
+
+    // Custom Permissions (overrides role defaults)
+    permissions: [{
+        type: String
+    }],
+
+    // Feature Access Restrictions
+    restrictedFeatures: [{
+        featureId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Feature'
+        },
+        reason: {
+            type: String
+        },
+        restrictedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    
     status: {
         type: String,
         enum: ['active', 'inactive'],
@@ -64,7 +85,7 @@ const userSchema = new mongoose.Schema({
         // Optional, for instructor profiles
     },
 
-    profileUrl:{
+    profileUrl: {
         type: String,
     },
 
@@ -72,16 +93,18 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    lastLoginAt: {
+        type: Date
     }
-    
+
 });
 
 // Update updatedAt on save
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
@@ -90,5 +113,6 @@ userSchema.pre('save', function(next) {
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ phoneNumber: 1 }, { unique: true });
 userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ institutionId: 1, role: 1 });
 
 module.exports = mongoose.model('User', userSchema);

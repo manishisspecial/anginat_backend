@@ -8,11 +8,11 @@ class UserRepository {
     async findByEmail(email) {
 
 
-            // Query the database
-            const user = await User.findOne({ email });
+        // Query the database
+        const user = await User.findOne({ email });
 
-            return user;
- 
+        return user;
+
     }
 
     async findByUsername(username) {
@@ -20,7 +20,7 @@ class UserRepository {
     }
 
     async findById(id) {
-        return await User.findById(id); // Fixed to use findById
+        return await User.findById(id).populate('institutionId').lean();; // Fixed to use findById
     }
 
     async findByIdentifier(identifier) {

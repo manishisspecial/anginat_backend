@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 
 class SubjectService {
     async createSubject(subjectData) {
-        const { name, code, institution, degree, instructors } = subjectData;
+        const { name, code, institution, degree, instructors, classCode } = subjectData;
         if (!name || !code || !institution || !instructors) {
-            throw new Error("Name, code, institution, and instructors are required");
+            throw new Error("Name, code, institution, classCode and instructors are required");
         }
         if (!mongoose.Types.ObjectId.isValid(institution)) {
             throw new Error("Invalid institution ID");
