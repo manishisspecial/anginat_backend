@@ -6,26 +6,39 @@ class SubscriptionPlanRepository {
     async createSubscriptionPlan(planData) {
         try {
             const plan = new SubscriptionPlan(planData);
-            return await plan.save();
+            await plan.save();
+            return await plan.populate('features.featureId')
         } catch (error) {
             throw new Error(`Error creating subscription plan: ${error.message}`);
         }
     }
     
-    async upgradeSubscriptionPlan(planId, updateData) {
+    async updateSubscriptionPlan(planId, updateData) {
         try {
-            const updatedPlan = await Subscription.findOneAndUpdate({
+            const updatedPlan = await SubscriptionPlan.findOneAndUpdate({
                 _id: planId
-            }, updateData, { new: true });
+            }, updateData, { new: true }).populate('features.featureId');
             return updatedPlan;
         } catch (error) {S
             throw new Error(`Error upgrading subscription plan: ${error.message}`);
         }   
     }
 
-    async getSubscriptionPlanById(planId) {
+    async deleteSubscriptionPlan(planId) {
         try {
-            const plan = await SubscriptionPlan.findById(planId);
+            const deletedPlan = await SubscriptionPlan.findByIdAndDelete(planId);
+            if (!deletedPlan) {
+                throw new Error('Subscription plan not found');
+            }
+            return deletedPlan;
+        } catch (error) {
+            throw new Error(`Error deleting subscription plan: ${error.message}`);
+        }
+    }
+
+    async getSubscriptionPlanById(planId,populateFields = []) {
+        try {
+            const plan = await SubscriptionPlan.findById(planId).populate(populateFields);
             if (!plan) {    
                 throw new Error('Subscription plan not found');
             }       
@@ -35,13 +48,16 @@ class SubscriptionPlanRepository {
         }
     }
 
-    async getAllSubscriptionPlans(){
+    async getAllSubscriptionPlans(populateFields = []) {
         try {
-            const plans = await SubscriptionPlan.find();
+            const plans = await SubscriptionPlan.find().populate(populateFields).lean();
             return plans;
         } catch (error) {
             throw new Error(`Error fetching subscription plans: ${error.message}`);
         }
     } 
 
+
 }
+
+module.exports = new SubscriptionPlanRepository();

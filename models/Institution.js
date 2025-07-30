@@ -25,8 +25,11 @@ const institutionSchema = new mongoose.Schema({
         }
     },
     address: {
-        type: String,
-        required: true
+        street: { type: String, trim: true },
+        city: { type: String, trim: true },
+        state: { type: String, trim: true },
+        country: { type: String, trim: true },
+        zipCode: { type: String, trim: true }
     },
     domainName: {
         type: String,
@@ -51,7 +54,8 @@ const institutionSchema = new mongoose.Schema({
     featureAccessMode: {
         type: String,
         enum: ['subscription', 'custom', 'hybrid'],
-        default: 'subscription'
+        default: 'subscription',
+        index: true
         // subscription: Uses subscription plan features
         // custom: Uses only custom features (ignores subscription)
         // hybrid: Uses both subscription + custom overrides
@@ -75,7 +79,9 @@ const institutionSchema = new mongoose.Schema({
         },
         startsAt: {
             type: Date,
-            required: true
+            required: function () {
+                return this.subscription && this.subscription.planId;
+            }
         },
         endsAt: {
             type: Date
@@ -164,11 +170,11 @@ const institutionSchema = new mongoose.Schema({
         }
     }],
 
-    status: {
-        type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
+    isActive: {
+        type: Boolean,
+        default: true // Institution can be deactivated
     },
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -176,12 +182,47 @@ const institutionSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
 // Indexes for performance
+// Indexes for performance
 institutionSchema.index({ email: 1 });
+institutionSchema.index({ institutionType: 1, isActive: 1 });
 institutionSchema.index({ 'subscription.planId': 1, 'subscription.status': 1 });
+institutionSchema.index({ 'customFeatures.featureId': 1 });
 institutionSchema.index({ 'featureUsage.featureId': 1 });
+institutionSchema.index({ featureAccessMode: 1, isActive: 1 });
+
+
+
+// Virtual for full address
+institutionSchema.virtual('fullAddress').get(function () {
+    if (!this.address) return '';
+    const parts = [
+        this.address.street,
+        this.address.city,
+        this.address.state,
+        this.address.country,
+        this.address.zipCode
+    ].filter(Boolean);
+    return parts.join(', ');
+});
+
+// Pre-save middleware
+institutionSchema.pre('save', function (next) {
+    // Set trial end date if not set for trial status
+    if (this.subscription &&
+        this.subscription.status === 'trial' &&
+        !this.subscription.trialEndsAt) {
+        this.subscription.trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    }
+    next();
+});
+
 
 module.exports = mongoose.model('Institution', institutionSchema);

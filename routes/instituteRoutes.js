@@ -13,22 +13,27 @@ const TimetableController = require("../controllers/TimetableController");
 const SemesterController = require("../controllers/SemesterController");
 const AttendanceSessionController = require("../controllers/AttendanceSessionController");
 const AttendanceController = require("../controllers/AttendanceController");
+const { requireFeature } = require("../middlewares/featureAccess");
 
 // Institute routes
 router
   .route("/get-institute/:instituteId")
-  .get(InstituteController.getInstituteDetails);
+  .get(requireFeature(''),InstituteController.getInstituteDetails);
+
 router
   .route("/update-details/:instituteId")
+
 router.route('/get-institute/:instituteId')
   .get(InstituteController.getInstituteDetails)
 
 
 router.route('/update-details/:instituteId')
   .post(verifyToken, InstituteController.updateInstituteDetails);
+
 router
   .route("/upload/:instituteId")
   .post(verifyToken, upload.single("file"), InstituteController.uploadFile);
+
 router
   .route("/get-institute-by-domain")
   .post(InstituteController.getInstituteByDomain);
@@ -152,7 +157,7 @@ router.post(
   verifyToken,
   hasAccess(["instructor", "admin"]),
   AttendanceSessionController.createAttendanceSession
-); 
+);
 
 router.post(
   "/attendance/mark",
@@ -161,6 +166,6 @@ router.post(
   AttendanceController.markAttendance
 );
 
-router.get("/attendance", verifyToken, hasAccess(["instructor","admin"]), AttendanceSessionController.getAttendanceSessions);
+router.get("/attendance", verifyToken, hasAccess(["instructor", "admin"]), AttendanceSessionController.getAttendanceSessions);
 
 module.exports = router;

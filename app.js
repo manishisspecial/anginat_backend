@@ -10,7 +10,10 @@ const authRoutes = require("./routes/authRoutes");
 const otpRoutes = require("./routes/otpRoutes");
 const leadRoutes = require("./routes/leadRoutes");
 const instituteRouter = require("./routes/instituteRoutes");
-
+const accessControlRoutes = require("./routes/accessControlRoutes");
+const featureManagementRoutes = require("./routes/featureManagementRoutes");
+const permissionRoutes = require("./routes/permissionRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
 dotenv.config();
 const app = express();
 
@@ -53,6 +56,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/lead", leadRoutes);
 app.use("/api/institute", instituteRouter);
+app.use("/api/rbac/access-control",accessControlRoutes);
+app.use("/api/rbac/feature", featureManagementRoutes);
+app.use("/api/rbac/permission", permissionRoutes);
+app.use("/api/rbac/subscription", subscriptionRoutes);
 
 app.get('/__vite_ping', (req, res) => {
   res.sendStatus(200); // respond OK to silence the 404

@@ -41,13 +41,33 @@ class InstitutionRepository {
     return await Institution.findOne({ email });
   }
 
-  async findById(id) {
-    return await Institution.findById(id)
-      .populate('subscription.planId')
-      .populate('customFeatures.featureId')
-      .lean();
+  async findById(institutionId, populateFields = []) {
+    try {
+      if (!institutionId) {
+        throw new Error('Institution ID is required');
+      }
+
+      let query = Institution.findById(institutionId);
+
+      // Add population if specified
+      populateFields.forEach(field => {
+        query = query.populate(field);
+      });
+
+
+
+      if (!query) {
+        throw new Error('Institution not found');
+      }
+
+      return query;
+
+    } catch (error) {
+      console.error('Error getting institution:', error);
+      return null;
+    }
   }
-  
+
   async findByDomain(domainName) {
     return await Institution.findOne({ domainName });
   }
@@ -95,6 +115,21 @@ class InstitutionRepository {
 
       return institution;
     } catch (error) { }
+  }
+
+  async findOneAndUpdate(findOptions, updateData) {
+    try {
+      let result = await Institution.findOneAndUpdate(findOptions, updateData, { new: true, runValidators: true });
+      if (!result) {
+        throw new Error('Institution not found');
+      }
+
+
+      return result;
+    } catch (error) {
+      console.error('Error in performDynamicUpdate:', error);
+      throw error;
+    }
   }
 }
 
