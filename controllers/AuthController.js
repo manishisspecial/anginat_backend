@@ -305,7 +305,7 @@ class AuthController {
     try {
 
       const decoded = jwt.verify(verifiedToken, process.env.VERIFY_OTP_SECRET);
-      
+
       const user = await UserService.updatePassword(
         email,
         newPassword
@@ -336,15 +336,25 @@ class AuthController {
     try {
       const { emailOrUsername, password } = req.body;
       const user = await UserService.login(emailOrUsername, password);
+  
       if (!user) {
         return sendErrorResponse(res, "Invalid credentials", 400);
       }
 
-      if (user.status !== "active") {
+      console.log("Console User:", user.isActive);
+      
+      if (!user.isActive) {
         return sendErrorResponse(res, "User account is inactive", 403);
       }
+
+      console.log("Console User:", user.institutionId);
       const institution = await InstitutionService.findById(user.institutionId);
-      if (!institution || institution.status !== "active") {
+      console.log("Console Institution:", institution);
+
+      if (
+        !institution ||
+        (institution.isActive === false || (institution.status && institution.status !== 'active'))
+      ) {
         return sendErrorResponse(res, "User's institution is inactive", 403);
       }
 
@@ -380,6 +390,7 @@ class AuthController {
         refreshToken,
       });
     } catch (error) {
+      console.error("Login Error:", error);
       return sendErrorResponse(
         res,
         "Internal Server Error",
@@ -391,9 +402,13 @@ class AuthController {
 
   async getInstitutionInfo(req, res) {
     try {
-      const userInstitution = req.user.institution;
+      const userInstitution = req.user.institutionId;
       const institution = await InstitutionService.findById(userInstitution);
-      if (!institution || institution.status !== "active") {
+      console.log("Console Institution:", institution);
+      if (
+        !institution ||
+        (institution.isActive === false || (institution.status && institution.status !== 'active'))
+      ) {
         return sendErrorResponse(res, "User's institution is inactive", 403);
       }
       return sendSuccessResponse(res, "Successful", institution);
@@ -409,6 +424,7 @@ class AuthController {
 
   async getUserInfo(req, res) {
     try {
+      
       const id = req.user.id;
       const user = await UserService.findById(id);
       if (!user) {
@@ -538,7 +554,7 @@ class AuthController {
     }
   }
 
-    async uploadProfileImage(req, res) {
+  async uploadProfileImage(req, res) {
     try {
       const { id: userId } = req.user; // Extracting studentId from the request object
       const file = req.file;
@@ -552,7 +568,7 @@ class AuthController {
       }
 
       const userExist = await UserService.findById(userId);
-     
+
       if (!userExist) {
         return sendErrorResponse(res, "User does not exist", 404);
       }
@@ -594,7 +610,7 @@ class AuthController {
         "Profile image uploaded successfully",
         updateUser
       );
-      
+
     } catch (error) {
       console.error("Error uploading profile image:", error); // Log the error
       return sendErrorResponse(

@@ -51,7 +51,7 @@ class LeadController {
   async getLeads(req, res) {
     try {
       const userRole = req.user.role;
-      const userInstitution = req.user.institution;
+      const userInstitution = req.user.institutionId;
       let query = {};
       switch (userRole) {
         case "super-admin":

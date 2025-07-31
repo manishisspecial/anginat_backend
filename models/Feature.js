@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 
 const featureSchema = new mongoose.Schema({
+
   // Feature Identity
   name: {
     type: String,
@@ -23,21 +24,15 @@ const featureSchema = new mongoose.Schema({
     enum: [
       'academic', "courses", 'attendance', 'timetable', 'leads',
       'media', 'announcements', 'reports', 'settings',
-      'communication', 'finance', 'study_materials', 'exams', "chat"
+      'communication', 'finance', 'study_materials', 'exams', "chat", "dashboard"
     ]
   },
 
   // Which institute types commonly use this feature
   commonForTypes: [{
     type: String,
-    enum: ['school', 'college', 'online_institute']
+    enum: ['school', 'college', 'institute']
   }],
-
-  category: {
-    type: String,
-    enum: ['core', 'advanced', 'premium', 'addon'],
-    default: 'core'
-  },
 
   // Access Control
   requiredPermissions: [{

@@ -1,3 +1,4 @@
+const { selectFields } = require('express-validator/lib/field-selection');
 const User = require('../models/User');
 
 class UserRepository {
@@ -19,8 +20,31 @@ class UserRepository {
         return await User.findOne({ username });
     }
 
-    async findById(id) {
-        return await User.findById(id).populate('institutionId').lean();; // Fixed to use findById
+    async findById(id, populateFields = [], selectFields = []) {
+        try {
+            if (!id) {
+                throw new Error('Institution ID is required');
+            }
+
+            let query = User.findById(id).select(selectFields);
+
+            // Add population if specified
+            populateFields.forEach(field => {
+                query = query.populate(field);
+            });
+            const user = await query;
+
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            return user;
+
+        } catch (error) {
+            console.error('Error getting User:', error);
+            return null;
+        }
+
     }
 
     async findByIdentifier(identifier) {

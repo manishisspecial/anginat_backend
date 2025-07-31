@@ -22,8 +22,9 @@ class InstitutionService {
     
     async findById(id) {
         try {
-            const institution = await InstitutionRepository.findById(id);
-            return institution && institution.status === 'active' ? institution : null;
+            const institution = await InstitutionRepository.findById(id,[
+                'customFeatures.featureId']);
+            return institution && (institution.status === 'active' || institution.isActive) ? institution : null;
         } catch (error) {
             console.error("Error finding institution by ID:", error.message || error);
             throw new Error('Error finding institution');
