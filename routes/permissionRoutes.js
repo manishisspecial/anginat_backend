@@ -1,7 +1,7 @@
 // routes/admin/user-permissions.js
 const express = require('express');
 const router = express.Router();
-const PermissionController = require('../controllers/permissionController');
+const PermissionController = require('../controllers/PermissionController');
 const { requirePermission } = require('../middlewares/permission');
 const { verifyToken } = require('../middlewares/authMiddleware');
 
