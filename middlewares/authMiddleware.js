@@ -51,7 +51,14 @@ const verifyToken = async (req, res, next) => {
     // }
 
 
-    req.user = user;
+    req.user = {
+      id: user._id,
+      role: user.role,
+      institutionId: user.institutionId._id,
+      institutionType : user.institutionId.institutionType,
+      featureAccessMode: user.institutionId.featureAccessMode,
+      isActive: user.isActive,
+    };
 
     next();
   } catch (err) {

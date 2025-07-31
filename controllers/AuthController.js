@@ -420,6 +420,7 @@ class AuthController {
 
   async getUserInfo(req, res) {
     try {
+      
       const id = req.user.id;
       const user = await UserService.findById(id);
       if (!user) {
