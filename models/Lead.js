@@ -18,10 +18,15 @@ const LeadSchema = new Schema({
         minlength: [3, 'Applicant name must be at least 3 characters long'],
         maxlength: [100, 'Applicant name must be less than 100 characters'],
     },
+    countryCode: {
+        type: String,
+        default: '+91',
+        match: [/^\+\d{1,4}$/, 'Please enter a valid country code'],
+    },
     phoneNumber: {
         type: String,
         required: [true, 'Phone number is required'],
-        match: [/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'],
+        match: [/^\d{1,14}$/, 'Please enter a valid phone number without country code'],
     },
     email: {
         type: String,

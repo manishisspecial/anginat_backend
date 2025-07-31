@@ -7,9 +7,11 @@ const contactUsTemplate = require("../utils/contactUsTemplate");
 const { preferences } = require("joi");
 const scheduleDemoTemplate = require("../utils/scheduleDemoTemplate");
 require("dotenv").config();
+
 class LeadController {
   async createLead(req, res) {
     try {
+      console.log('Create Lead req.body:', req.body); // Log the request body
       const leadData = req.body;
       const institution = await Institution.findOne({
         domainName: req.body.institutionDomain,
@@ -19,12 +21,19 @@ class LeadController {
         return sendErrorResponse(res, "Institution not found", 404);
       }
 
+      // Set default country code if not provided
+      if (!leadData.countryCode) {
+        leadData.countryCode = '+91';
+      }
+
       const newLead = {
         ...leadData,
         institution: institution._id,
       };
 
+      console.log('newLead:', newLead);
       const lead = await LeadService.createLead(newLead);
+      console.log('lead from DB:', lead);
 
       wsManager.broadcast({ type: "NEW_LEAD", data: newLead });
 
@@ -38,6 +47,7 @@ class LeadController {
       return sendErrorResponse(res, "Error creating lead", 500, error.message);
     }
   }
+
   async getLeads(req, res) {
     try {
       const userRole = req.user.role;
@@ -95,6 +105,7 @@ class LeadController {
         "course",
         "applicantName",
         "phoneNumber",
+        "countryCode",
         "email",
         "status",
       ];
@@ -109,7 +120,18 @@ class LeadController {
           400
         );
       }
-      const updatedLead = await LeadService.updateLead(leadId, updateData);
+      // If countryCode is missing in updateData, fetch it from DB and add it
+      if (!('countryCode' in updateData)) {
+        const existingLead = await LeadService.getLeadById(leadId);
+        if (existingLead && existingLead.countryCode) {
+          updateData.countryCode = existingLead.countryCode;
+        } else {
+          updateData.countryCode = '+91'; // fallback default
+        }
+      }
+      await LeadService.updateLead(leadId, updateData);
+      // Fetch the updated lead from DB to ensure all fields (including countryCode) are included
+      const updatedLead = await LeadService.getLeadById(leadId);
       return sendSuccessResponse(res, "Lead updated successfully", {
         updatedLead,
       });

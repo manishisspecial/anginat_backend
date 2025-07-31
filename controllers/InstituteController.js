@@ -74,10 +74,10 @@ class InstituteController {
         return sendErrorResponse(res, "File size must not exceed 500KB", 400);
       }
 
-      // Determine file type (cover or profile)
+      // Determine file type (logo or profile)
       const fileType = req.body.type;
 
-      // Ensure a valid file type is provided (either 'profile' or 'cover')
+      // Ensure a valid file type is provided (either 'profile' or 'logo')
   
       
       // Perform specific actions based on the file type
@@ -111,10 +111,10 @@ class InstituteController {
           } image uploaded successfully`,
           institute: updatedData,
         });
-      } else if (fileType === "cover") {
+      } else if (fileType === "logo") {
         const uploadResponse = await imagekit.upload({
           file: req.file.buffer,
-          fileName: `cover-${Date.now()}.${req.file.mimetype.split("/")[1]}`,
+          fileName: `logo-${Date.now()}.${req.file.mimetype.split("/")[1]}`,
           folder: `/${institute.institutionCode}`,
         });
 
@@ -130,7 +130,7 @@ class InstituteController {
         const updatedData = await InstitutionService.findAndUpdateInstitute(
           instituteId,
           {
-            coverUrl: uploadResponse.url,
+            logoUrl: uploadResponse.url,
           }
         );
 

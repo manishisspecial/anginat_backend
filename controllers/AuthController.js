@@ -15,6 +15,7 @@ class AuthController {
       const {
         email,
         phoneNumber,
+        countryCode = '+91', // Default to +91 if not provided
         username,
         password,
         role,
@@ -103,6 +104,7 @@ class AuthController {
         {
           email,
           phoneNumber,
+          countryCode,
           username,
           password,
           role,
@@ -164,6 +166,7 @@ class AuthController {
       const {
         email,
         phoneNumber,
+        countryCode = '+91', // Default to +91 if not provided
         username,
         password,
         role,
@@ -223,6 +226,7 @@ class AuthController {
         {
           email,
           phoneNumber,
+          countryCode,
           username,
           password,
           role,

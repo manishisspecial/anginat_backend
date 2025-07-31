@@ -42,7 +42,7 @@ const institutionSchema = new mongoose.Schema({
     profileUrl: {
         type: String
     },
-    coverUrl: {
+    logoUrl: {
         type: String
     },
 
