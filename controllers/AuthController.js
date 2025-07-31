@@ -384,6 +384,7 @@ class AuthController {
         refreshToken,
       });
     } catch (error) {
+      console.error("Login Error:", error);
       return sendErrorResponse(
         res,
         "Internal Server Error",
