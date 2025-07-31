@@ -332,11 +332,13 @@ class AuthController {
     try {
       const { emailOrUsername, password } = req.body;
       const user = await UserService.login(emailOrUsername, password);
+  
       if (!user) {
         return sendErrorResponse(res, "Invalid credentials", 400);
       }
-      console.log("Console User:", user.isActive);
 
+      console.log("Console User:", user.isActive);
+      
       if (!user.isActive) {
         return sendErrorResponse(res, "User account is inactive", 403);
       }
