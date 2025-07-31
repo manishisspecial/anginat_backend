@@ -1,4 +1,3 @@
-
 const InstitutionRepository = require('../repositories/InstitutionRepository');
 const FeatureRepository = require('../repositories/FeatureRepository');
 
@@ -14,14 +13,40 @@ class FeatureService {
         return { success: false, message: 'Institution not found' };
       }
 
-      // Validate feature IDs
-      const features = await FeatureRepository.validateFeatureIds(featureIds);
+      // Resolve feature names to ObjectIds if necessary
+      const features = await FeatureRepository.getFeatures({ _id: { $in: featureIds } });
       if (features.length !== featureIds.length) {
         return { success: false, message: 'Some features not found' };
       }
 
-      // Create custom features array
-      const customFeatures = featureIds.map(featureId => ({
+      const featureMap = features.reduce((map, feature) => {
+        map[feature._id.toString()] = feature.name;
+        return map;
+      }, {});
+
+      const featureObjectIds = features.map(feature => feature._id);
+
+      // Filter out already assigned features
+      const existingFeatureIds = institution.customFeatures.map(cf => cf.featureId.toString());
+      const alreadyAssigned = featureObjectIds.filter(featureId => existingFeatureIds.includes(featureId.toString()));
+      const newFeatures = featureObjectIds.filter(featureId => !existingFeatureIds.includes(featureId.toString()));
+
+      // Notify if some features are already assigned
+      const alreadyAssignedDetails = alreadyAssigned.map(featureId => ({
+        id: featureId,
+        name: featureMap[featureId.toString()]
+      }));
+
+      if (alreadyAssigned.length > 0) {
+        console.log(`The following features are already assigned: ${alreadyAssignedDetails.map(f => f.name).join(', ')}`);
+      }
+
+      if (newFeatures.length === 0) {
+        return { success: false, message: 'All features are already assigned', alreadyAssigned: alreadyAssignedDetails };
+      }
+
+      // Create new custom features array
+      const customFeatures = newFeatures.map(featureId => ({
         featureId,
         isEnabled: true,
         customLimit: null,
@@ -30,29 +55,26 @@ class FeatureService {
         assignedAt: new Date()
       }));
 
-      // Update institution
-      const updateData = {
-        featureAccessMode: mode,
-        customFeatures: customFeatures
-      };
+      // Add new features to existing custom features
+      institution.customFeatures.push(...customFeatures);
 
-      // // Apply custom limits if provided
-      // if (limits) {
-      //   updateData.customLimits = {
-      //     ...limits,
-      //     useCustomLimits: true
-      //   };
-      // }
+      // Update feature access mode if necessary
+      if (institution.featureAccessMode !== mode) {
+        institution.featureAccessMode = mode;
+      }
 
-      await InstitutionRepository.updateInstituteDetails(institutionId, updateData);
+      await institution.save();
 
-      // Reset usage tracking
-      await this.resetUsageTracking(institutionId);
+      const newlyAssignedDetails = newFeatures.map(featureId => ({
+        id: featureId,
+        name: featureMap[featureId.toString()]
+      }));
 
       return {
         success: true,
-        message: `Custom features assigned successfully (${mode} mode)`,
-        featuresAssigned: customFeatures.length,
+        message: `Custom features assigned successfully (${mode} mode)` + (alreadyAssigned.length > 0 ? `, but some were already assigned: ${alreadyAssignedDetails.map(f => f.name).join(', ')}` : ''),
+        featuresAssigned: newlyAssignedDetails,
+        alreadyAssigned: alreadyAssignedDetails,
         mode: mode
       };
 

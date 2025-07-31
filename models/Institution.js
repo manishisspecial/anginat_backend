@@ -67,7 +67,6 @@ const institutionSchema = new mongoose.Schema({
         planId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SubscriptionPlan',
-            required: true
         },
         status: {
             type: String,
