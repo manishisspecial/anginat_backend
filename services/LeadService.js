@@ -16,7 +16,7 @@ class LeadService {
     }
 
     async getLeadById(leadId) {
-        return await LeadRepository.getLeadById(leadId);
+        return await LeadRepository.findById(leadId);
     }
 
     async updateLead(leadId, updateData) {

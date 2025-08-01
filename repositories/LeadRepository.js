@@ -21,6 +21,10 @@ class LeadRepository {
     async updateBulkStatus(leadIds, status) {
         return await Lead.updateMany({ _id: { $in: leadIds } }, { status });
     }
+
+    async findById(id){
+        return Lead.findById(id);
+    }
 }
 
 module.exports = new LeadRepository();

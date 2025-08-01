@@ -129,12 +129,14 @@ class LeadController {
           updateData.countryCode = '+91'; // fallback default
         }
       }
+
       await LeadService.updateLead(leadId, updateData);
       // Fetch the updated lead from DB to ensure all fields (including countryCode) are included
       const updatedLead = await LeadService.getLeadById(leadId);
       return sendSuccessResponse(res, "Lead updated successfully", {
         updatedLead,
       });
+      
     } catch (error) {
       console.error("Update Lead Error:", {
         message: error.message,
