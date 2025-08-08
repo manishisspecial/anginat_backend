@@ -128,6 +128,9 @@ const userSchema = new mongoose.Schema({
     profileUrl: {
         type: String,
     },
+    coverUrl: {
+        type: String,
+    },
 
     createdAt: {
         type: Date,

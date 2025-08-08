@@ -26,6 +26,7 @@ router.post(
 
 
 router.post("/upload-profile-image", verifyToken,upload.single("profile"), AuthController.uploadProfileImage);
+router.post("/upload-cover-image", verifyToken, upload.single("cover"), AuthController.uploadCoverImage);
 
 
 module.exports = router;

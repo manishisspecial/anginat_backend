@@ -621,6 +621,63 @@ class AuthController {
       );
     }
   }
+
+  async uploadCoverImage(req, res) {
+    try {
+      const { id: userId } = req.user;
+      const file = req.file;
+
+      if (!userId) {
+        return sendErrorResponse(res, "User ID is required", 400);
+      }
+
+      if (!file) {
+        return sendErrorResponse(res, "No file uploaded", 400);
+      }
+
+      const userExist = await UserService.findById(userId);
+      if (!userExist) {
+        return sendErrorResponse(res, "User does not exist", 404);
+      }
+
+      const fileSize = req.file.size;
+      const allowedMimeTypes = ["image/jpeg", "image/png"];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        return sendErrorResponse(
+          res,
+          "Invalid file type. Only JPEG and PNG are allowed.",
+          400
+        );
+      }
+      if (fileSize > 1024 * 1024) {
+        return sendErrorResponse(res, "File size must not exceed 500KB", 400);
+      }
+
+      const uploadResponse = await imagekit.upload({
+        file: file.buffer,
+        fileName: `cover_${userId}_${Date.now()}`,
+        folder: "student_covers",
+      });
+
+      const updatedUser = await UserService.updateUserData(userId, {
+        coverUrl: uploadResponse.url,
+      });
+
+      return sendSuccessResponse(
+        res,
+        "Cover image uploaded successfully",
+        updatedUser
+      );
+    } catch (error) {
+      console.error("Error uploading cover image:", error);
+      return sendErrorResponse(
+        res,
+        "Error uploading cover image",
+        500,
+        error.message || error
+      );
+    }
+  }
 }
 
 module.exports = new AuthController();
