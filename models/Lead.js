@@ -20,7 +20,7 @@ const LeadSchema = new Schema({
     },
     countryCode: {
         type: String,
-        default: '+91',
+        required: [true, 'Country code is required'], 
         match: [/^\+\d{1,4}$/, 'Please enter a valid country code'],
     },
     phoneNumber: {
