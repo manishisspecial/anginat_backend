@@ -48,6 +48,19 @@ class SubscriptionPlanRepository {
         }
     }
 
+    async getSubscriptionPlan(options = {}, populateFields = []) {
+        try {
+            let query = SubscriptionPlan.findOne(options);
+            populateFields.forEach(field => {
+                query = query.populate(field);
+            });
+            const plan = await query;
+            return plan;
+        } catch (error) {
+            throw new Error(`Error fetching subscription plan: ${error.message}`);
+        }
+    }
+
     async getAllSubscriptionPlans(populateFields = []) {
         try {
             const plans = await SubscriptionPlan.find().populate(populateFields).lean();

@@ -165,33 +165,34 @@ class FeatureController {
                 all: allFeatures
             };
 
-            // Send the response
-            res.json({
-                success: true,
-                data: groupedFeatures
-            });
+    
+            sendSuccessResponse(res, 'Features fetched successfully', {
+                metaData :{
+                    totalFeatures: allFeatures.length,
+                    schoolFeatures: groupedFeatures.school.length,
+                    collegeFeatures: groupedFeatures.college.length,
+                    onlineInstituteFeatures: groupedFeatures.online_institute.length,
+                    featuresByName: groupedFeatures.all.map(f => f.name).sort()
+                },
+                features: groupedFeatures});
 
         } catch (error) {
             console.error('Error fetching features:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
-            });
+           
+            sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
 
     async assignCustomFeatures(req, res) {
         try {
-            const { institutionId, featureIds, limits, mode = 'custom', reason } = req.body;
+            const { institutionId, featureConfigs, mode = 'custom'} = req.body;
             const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
 
             const result = await FeatureService.assignCustomFeatures(
                 institutionId,
-                featureIds,
+                featureConfigs,
                 superAdminId,
-                limits,
-                mode,
-                reason
+                mode
             );
 
             sendSuccessResponse(res, 'Features assigned successfully', result);
@@ -201,88 +202,85 @@ class FeatureController {
         }
     }
 
-    async addHybridOverride(req, res) {
-        try {
-            const { institutionId, featureId, isEnabled = true, customLimit, reason } = req.body;
-            const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
+    // async addHybridOverride(req, res) {
+    //     try {
+    //         const { institutionId, featureId, isEnabled = true, customLimit, reason } = req.body;
+    //         const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
 
-            const result = await FeatureService.addHybridOverride(
-                institutionId,
-                featureId,
-                superAdminId,
-                isEnabled,
-                customLimit,
-                reason
-            );
+    //         const result = await FeatureService.addHybridOverride(
+    //             institutionId,
+    //             featureId,
+    //             superAdminId,
+    //             isEnabled,
+    //             customLimit,
+    //             reason
+    //         );
 
-            res.json(result);
+    //         res.json(result);
 
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
-            });
-        }
-    }
+    //     } catch (error) {
+    //         res.status(500).json({
+    //             success: false,
+    //             message: 'Internal server error'
+    //         });
+    //     }
+    // }
 
-    async deleteHybridOverride(req, res) {
-        try {
-            const { institutionId, featureId } = req.params;
-            const { reason } = req.body;
-            const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
+    // async deleteHybridOverride(req, res) {
+    //     try {
+    //         const { institutionId, featureId } = req.params;
+    //         const { reason } = req.body;
+    //         const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
 
-            const result = await CustomFeatureService.removeHybridOverride(
-                institutionId,
-                featureId,
-                superAdminId,
-                reason
-            );
+    //         const result = await CustomFeatureService.removeHybridOverride(
+    //             institutionId,
+    //             featureId,
+    //             superAdminId,
+    //             reason
+    //         );
 
-            res.json(result);
+    //         res.json(result);
 
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
-            });
-        }
-    }
+    //     } catch (error) {
+    //         res.status(500).json({
+    //             success: false,
+    //             message: 'Internal server error'
+    //         });
+    //     }
+    // }
 
-    async addFeatureToInstitution(req, res) {
-        try {
-            const { institutionId, featureId, customLimit } = req.body;
-            const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
+    // async addFeatureToInstitution(req, res) {
+    //     try {
+    //         const { institutionId, featureId, customLimit } = req.body;
+    //         const superAdminId = req.body.superAdminId || 'temp-admin'; // temporary
 
-            const result = await CustomFeatureService.addFeatureToInstitution(
-                institutionId,
-                featureId,
-                superAdminId,
-                customLimit
-            );
+    //         const result = await CustomFeatureService.addFeatureToInstitution(
+    //             institutionId,
+    //             featureId,
+    //             superAdminId,
+    //             customLimit
+    //         );
 
-            res.json(result);
+    //         res.json(result);
 
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
-            });
-        }
-    }
+    //     } catch (error) {
+    //         res.status(500).json({
+    //             success: false,
+    //             message: 'Internal server error'
+    //         });
+    //     }
+    // }
 
     async switchToSubscriptionMode(req, res) {
         try {
             const { institutionId } = req.body;
 
-            const result = await CustomFeatureService.switchToSubscriptionMode(institutionId);
+            const result = await FeatureService.switchToSubscriptionMode(institutionId);
 
-            res.json(result);
+            sendSuccessResponse(res, 'Switched to subscription mode successfully', result);
 
         } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
-            });
+           sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
     

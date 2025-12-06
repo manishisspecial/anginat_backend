@@ -18,12 +18,12 @@ router.put('/:id', FeatureController.updateFeature);
 /**
  * Delete feature
  */
-router.delete('/:id', FeatureController.deleteFeature);
+router.delete('/:id', FeatureController.deleteFeature);  // testing pending
 
 /**
  * Bulk create features
  */
-router.post('/bulk', FeatureController.createBulkFeatures);
+router.post('/bulk', FeatureController.createBulkFeatures); // testing pending
 
 /**
  * Get all features grouped by institute type
@@ -35,20 +35,20 @@ router.get('/get-all', FeatureController.getAllFeatures);
  */
 router.post('/assign', FeatureController.assignCustomFeatures);
 
-/**
- * Add hybrid override to institution
- */
-router.post('/hybrid-override', FeatureController.addHybridOverride);
+// /**
+//  * Add hybrid override to institution
+//  */
+// router.post('/hybrid-override', FeatureController.addHybridOverride);
 
-/**
- * Remove hybrid override
- */
-router.delete('/hybrid-override/:institutionId/:featureId', FeatureController.deleteHybridOverride);
+// /**
+//  * Remove hybrid override
+//  */
+// router.delete('/hybrid-override/:institutionId/:featureId', FeatureController.deleteHybridOverride);
 
-/**
- * Add single feature to institution
- */
-router.post('/add-feature', FeatureController.addFeatureToInstitution);
+// /**
+//  * Add single feature to institution
+//  */
+// router.post('/add-feature', FeatureController.addFeatureToInstitution);
 
 /**
  * Switch institution to subscription mode

@@ -1,12 +1,13 @@
 const InstitutionRepository = require('../repositories/InstitutionRepository');
 const FeatureRepository = require('../repositories/FeatureRepository');
+const SubscriptionPlanRepository = require('../repositories/SubscriptionPlanRepository');
 
 class FeatureService {
 
   /**
    * Assign custom features to institution - Simple!
    */
-  async assignCustomFeatures(institutionId, featureIds, adminId, limits = null, mode = 'custom') {
+  async assignCustomFeatures(institutionId, featureConfigs, adminId, mode = 'custom') {
     try {
       const institution = await InstitutionRepository.findById(institutionId);
       if (!institution) {
@@ -14,6 +15,7 @@ class FeatureService {
       }
 
       // Resolve feature names to ObjectIds if necessary
+      const featureIds = featureConfigs.map(config => config.featureId);
       const features = await FeatureRepository.getFeatures({ _id: { $in: featureIds } });
       if (features.length !== featureIds.length) {
         return { success: false, message: 'Some features not found' };
@@ -29,7 +31,7 @@ class FeatureService {
       // Filter out already assigned features
       const existingFeatureIds = institution.customFeatures.map(cf => cf.featureId.toString());
       const alreadyAssigned = featureObjectIds.filter(featureId => existingFeatureIds.includes(featureId.toString()));
-      const newFeatures = featureObjectIds.filter(featureId => !existingFeatureIds.includes(featureId.toString()));
+      const newFeatures = featureConfigs.filter(config => !existingFeatureIds.includes(config.featureId.toString()));
 
       // Notify if some features are already assigned
       const alreadyAssignedDetails = alreadyAssigned.map(featureId => ({
@@ -46,10 +48,11 @@ class FeatureService {
       }
 
       // Create new custom features array
-      const customFeatures = newFeatures.map(featureId => ({
-        featureId,
-        isEnabled: true,
-        customLimit: null,
+      const customFeatures = newFeatures.map(config => ({
+        featureId: config.featureId,
+        isEnabled: true, // Always true
+        customLimit: config.customLimit ?? null, // Default to null
+        resetCycle: config.customLimit === null ? 'never' : (config.resetCycle ?? 'monthly'), // Default resetCycle logic
         reason: mode === 'hybrid' ? 'Hybrid mode override' : 'Admin assignment',
         assignedBy: adminId,
         assignedAt: new Date()
@@ -65,77 +68,21 @@ class FeatureService {
 
       await institution.save();
 
-      const newlyAssignedDetails = newFeatures.map(featureId => ({
-        id: featureId,
-        name: featureMap[featureId.toString()]
+      const newlyAssignedDetails = newFeatures.map(config => ({
+        id: config.featureId,
+        name: featureMap[config.featureId.toString()]
       }));
 
       return {
         success: true,
-        message: `Custom features assigned successfully (${mode} mode)` + (alreadyAssigned.length > 0 ? `, but some were already assigned: ${alreadyAssignedDetails.map(f => f.name).join(', ')}` : ''),
+        message: `${mode === 'hybrid' ? 'Hybrid override added' : 'Custom features assigned'} successfully` + (alreadyAssigned.length > 0 ? `, but some were already assigned: ${alreadyAssignedDetails.map(f => f.name).join(', ')}` : ''),
         featuresAssigned: newlyAssignedDetails,
         alreadyAssigned: alreadyAssignedDetails,
-        mode: mode
+        mode
       };
 
     } catch (error) {
-      console.error('Error assigning custom features:', error);
-      return { success: false, message: 'Internal error' };
-    }
-  }
-
-  /**
-   * Add custom override to hybrid mode institution
-   */
-  async addHybridOverride(institutionId, featureId, adminId, isEnabled = true, customLimit = null) {
-    try {
-      const institution = await InstitutionRepository.findById(institutionId);
-      if (!institution) {
-        return { success: false, message: 'Institution not found' };
-      }
-
-      // Check if feature already exists in custom features
-      const existingIndex = institution.customFeatures.findIndex(
-        cf => cf.featureId.toString() === featureId
-      );
-
-      const override = {
-        featureId,
-        isEnabled,
-        customLimit,
-        reason: 'Hybrid mode override',
-        assignedBy: adminId,
-        assignedAt: new Date()
-      };
-
-      if (existingIndex >= 0) {
-        // Update existing override
-        institution.customFeatures[existingIndex] = override;
-      } else {
-        // Add new override
-        institution.customFeatures.push(override);
-      }
-
-      // Set to hybrid mode if not already
-      if (institution.featureAccessMode !== 'hybrid') {
-        institution.featureAccessMode = 'hybrid';
-      }
-
-      await institution.save();
-
-      return {
-        success: true,
-        message: 'Hybrid override added successfully',
-        override: {
-          featureId,
-          isEnabled,
-          customLimit,
-          type: existingIndex >= 0 ? 'updated' : 'added'
-        }
-      };
-
-    } catch (error) {
-      console.error('Error adding hybrid override:', error);
+      console.error(`Error ${mode === 'hybrid' ? 'adding hybrid override' : 'assigning custom features'}:`, error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -228,12 +175,38 @@ class FeatureService {
    */
   async switchToSubscriptionMode(institutionId) {
     try {
-      await InstitutionRepository.findOneAndUpdate({ _id: institutionId }, {
-        featureAccessMode: 'subscription',
-        customFeatures: []
-      });
+      const institution = await InstitutionRepository.findById(institutionId);
+      if (!institution) {
+        return { success: false, message: 'Institution not found' };
+      }
 
-      return { success: true, message: 'Switched to subscription mode' };
+      const subscriptionPlanId = institution.subscription?.planId;
+      if (!subscriptionPlanId) {
+        return { success: false, message: 'No subscription plan assigned to the institution' };
+      }
+
+      // Fetch subscription plan features
+      const subscriptionPlan = await SubscriptionPlanRepository.findById(subscriptionPlanId);
+      if (!subscriptionPlan || !subscriptionPlan.features) {
+        return { success: false, message: 'Invalid or missing subscription plan features' };
+      }
+
+      // Assign subscription plan features
+      institution.customFeatures = subscriptionPlan.features.map(feature => ({
+        featureId: feature._id,
+        isEnabled: true,
+        customLimit: null, // Default to unlimited
+        resetCycle: 'never', // Default reset cycle for subscription features
+        reason: 'Subscription plan feature',
+        assignedBy: null, // No specific admin for subscription features
+        assignedAt: new Date()
+      }));
+
+      institution.featureAccessMode = 'subscription';
+
+      await institution.save();
+
+      return { success: true, message: 'Switched to subscription mode with subscription plan features assigned' };
 
     } catch (error) {
       console.error('Error switching mode:', error);

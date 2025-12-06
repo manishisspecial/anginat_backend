@@ -70,8 +70,8 @@ const institutionSchema = new mongoose.Schema({
         },
         status: {
             type: String,
-            enum: ['active', 'cancelled', 'expired', 'trial', 'suspended'],
-            default: 'trial'
+            enum: ['active', 'cancelled', 'expired', 'suspended'],
+            default: 'active'
         },
         trialEndsAt: {
             type: Date
@@ -154,7 +154,7 @@ const institutionSchema = new mongoose.Schema({
         resetCycle: {
             type: String,
             enum: ['daily', 'weekly', 'monthly', 'yearly', 'never'],
-            default: 'monthly'
+            default: 'never'
         },
         reason: {
             type: String // Why this feature was added/modified

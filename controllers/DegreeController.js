@@ -25,6 +25,7 @@ class DegreeController {
         institution: institutionId,
         ...degreeData,
       });
+      
       sendSuccessResponse(res, "Degree created successfully", newDegree);
     } catch (error) {
       console.error("Error in createDegree:", error);

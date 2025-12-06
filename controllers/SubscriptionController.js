@@ -8,7 +8,12 @@ class SubscriptionController {
         try {
             const plans = await SubscriptionPlanRepository.getAllSubscriptionPlans(['features.featureId'])
 
-            sendSuccessResponse(res, 'Subscription plans fetched successfully', plans);
+            const totalPlans = plans.length;
+
+            return sendSuccessResponse(res, 'Subscription plans fetched successfully', {
+                totalPlans,
+                plans
+            });
 
         } catch (error) {
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
@@ -45,7 +50,7 @@ class SubscriptionController {
             } = req.body;
 
             // Check if plan with same name already exists
-            const existingPlan = await SubscriptionPlan.findOne({ name });
+            const existingPlan = await SubscriptionPlanRepository.getSubscriptionPlan({ name });
             if (existingPlan) {
                 return res.status(400).json({
                     success: false,
@@ -56,7 +61,7 @@ class SubscriptionController {
             // Validate feature IDs if provided
             if (features.length > 0) {
                 const featureIds = features.map(f => f.featureId);
-                const validFeatures = await FeatureRepository.getFeatures({ _id: { $in: featureIds } });
+                const validFeatures = await FeatureRepository.validateFeatureIds(featureIds);
 
                 if (validFeatures.length !== featureIds.length) {
                     return res.status(400).json({
@@ -66,7 +71,7 @@ class SubscriptionController {
                 }
             }
 
-            const plan = new SubscriptionPlanRepository.createSubscriptionPlan({
+            const plan = await SubscriptionPlanRepository.createSubscriptionPlan({
                 name,
                 displayName,
                 description,
@@ -78,9 +83,10 @@ class SubscriptionController {
             });
 
 
-            sendSuccessResponse(res, 'Subscription plan created successfully', plan);
+            return sendSuccessResponse(res, 'Subscription plan created successfully', plan);
 
         } catch (error) {
+            console.log("Error creatinng subscription plan :", error);
             if (error.name === 'ValidationError') {
                 return res.status(400).json({
                     success: false,
@@ -105,25 +111,7 @@ class SubscriptionController {
             delete updateData._id;
             delete updateData.__v;
 
-            // Validate feature IDs if provided
-            if (updateData.features && updateData.features.length > 0) {
-                const featureIds = updateData.features.map(f => f.featureId);
-                const validFeatures = await FeatureRepository.getFeatures({ _id: { $in: featureIds } });
-
-                if (validFeatures.length !== featureIds.length) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Some feature IDs are invalid'
-                    });
-                }
-            }
-
-            const plan = await SubscriptionPlanRepository.updateSubscriptionPlan(
-                planId,
-                updateData,
-                { new: true, runValidators: true }
-            )
-
+            const plan = await SubscriptionPlanRepository.getSubscriptionPlanById(planId);
             if (!plan) {
                 return res.status(404).json({
                     success: false,
@@ -131,28 +119,34 @@ class SubscriptionController {
                 });
             }
 
-            res.json({
-                success: true,
-                data: plan,
-                message: 'Subscription plan updated successfully'
-            });
+            // Handle pricing update
+            if (updateData.pricing && Array.isArray(updateData.pricing)) {
+                const existingPricing = plan.pricing || [];
+                const newPricing = updateData.pricing;
 
-        } catch (error) {
-            if (error.name === 'ValidationError') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Validation error',
-                    errors: Object.keys(error.errors).map(key => ({
-                        field: key,
-                        message: error.errors[key].message
-                    }))
+                // Merge new pricing with existing pricing
+                newPricing.forEach(newPrice => {
+                    const isDuplicate = existingPricing.some(existingPrice => JSON.stringify(existingPrice) === JSON.stringify(newPrice));
+                    if (!isDuplicate) {
+                        existingPricing.push(newPrice);
+                    }
                 });
+
+                plan.pricing = existingPricing;
             }
 
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error'
+            // Update other data
+            Object.keys(updateData).forEach(key => {
+                if (key !== 'pricing') {
+                    plan[key] = updateData[key];
+                }
             });
+
+            await plan.save();
+
+            return sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
+        } catch (error) {
+            sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
 
@@ -172,17 +166,15 @@ class SubscriptionController {
         }
     }
 
-    async addFeatureToSubscriptionPlan(req, res) {
+    async addFeaturesToSubscriptionPlan(req, res) {
         try {
             const planId = req.params.id;
-            const { featureId, isEnabled = true, usageLimit = null, resetCycle = 'monthly' } = req.body;
+            const { features } = req.body;
 
-            // Validate feature exists
-            const feature = await FeatureRepository.getFeatureById(featureId);
-            if (!feature) {
+            if (!features || features.length === 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Feature not found'
+                    message: 'No features provided'
                 });
             }
 
@@ -194,59 +186,83 @@ class SubscriptionController {
                 });
             }
 
-            // Check if feature already exists in plan
-            const existingFeature = plan.features.find(
-                f => f.featureId.toString() === featureId.toString()
-            );
+            // Validate feature IDs
+            const featureIds = features.map(f => f.featureId);
+            const validFeatures = await FeatureRepository.validateFeatureIds(featureIds);
 
-            if (existingFeature) {
+            if (validFeatures.length !== featureIds.length) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Feature already exists in this plan'
+                    message: 'Some feature IDs are invalid'
                 });
             }
 
-            // Add feature to plan
-            plan.features.push({
-                featureId,
-                isEnabled,
-                usageLimit,
-                resetCycle
+            const alreadyAssignedFeatures = [];
+            const newlyAssignedFeatures = [];
+
+            featureIds.forEach(featureId => {
+                const existingFeature = plan.features.find(f => f.featureId.toString() === featureId.toString());
+                if (existingFeature) {
+                    alreadyAssignedFeatures.push(existingFeature.featureId);
+                } else {
+                    const userFeature = features.find(f => f.featureId.toString() === featureId.toString());
+                    newlyAssignedFeatures.push({
+                        featureId,
+                        isEnabled: userFeature.isEnabled !== undefined ? userFeature.isEnabled : true,
+                        usageLimit: userFeature.usageLimit !== undefined ? userFeature.usageLimit : null,
+                        resetCycle: userFeature.resetCycle !== undefined ? userFeature.resetCycle : 'never'
+                    });
+                }
             });
+
+            // Add new features to the plan
+            plan.features.push(...newlyAssignedFeatures);
 
             await plan.save();
             await plan.populate('features.featureId');
 
-            sendSuccessResponse(res, 'Feature added to subscription plan successfully', plan);
+            return sendSuccessResponse(res, 'Features added to subscription plan successfully', {
+                alreadyAssignedFeatures,
+                newlyAssignedFeatures,
+            });
 
         } catch (error) {
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
 
-    async removeFeatureFromSubscriptionPlan(req, res) {
-        try {
-            const { id: planId, featureId } = req.params;
 
-            const plan = await SubscriptionPlanRepository.getSubscriptionPlanById(planId, ['features.featureId']);
+    async removeFeaturesFromSubscriptionPlan(req, res) {
+        try {
+            const { id: planId } = req.params;
+            const { featureIds } = req.body;
+
+            if (!featureIds || featureIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No feature IDs provided'
+                });
+            }
+
+            const plan = await SubscriptionPlanRepository.getSubscriptionPlanById(planId,['features.featureId']);
             if (!plan) {
                 return res.status(404).json({
                     success: false,
                     message: 'Subscription plan not found'
                 });
-            }
+            } 
 
-            // Remove feature from plan
+            // Remove features from plan
             plan.features = plan.features.filter(
-                f => f.featureId.toString() !== featureId.toString()
+                f => !featureIds.includes(f.featureId.toString())
             );
 
             await plan.save();
 
-            sendSuccessResponse(res, 'Feature removed from subscription plan successfully', plan);
-
+            sendSuccessResponse(res, 'Features removed from subscription plan successfully', plan);
         } catch (error) {
-            sendErrorResponse(res, 'Internal Server Error', error.message || error)
+            console.log("Error removing features from subscription plan:", error);
+            sendErrorResponse(res, 'Internal Server Error', error.message || error);
         }
     }
 
@@ -339,7 +355,7 @@ class SubscriptionController {
             const institutionId = req.params.id;
             const { status, endsAt } = req.body;
 
-            const validStatuses = ['active', 'cancelled', 'expired', 'trial', 'suspended'];
+            const validStatuses = ['active', 'cancelled', 'expired', 'suspended'];
             if (!validStatuses.includes(status)) {
                 return sendErrorResponse(res, "Invalid subscription status", 400);
             }
@@ -394,6 +410,8 @@ class SubscriptionController {
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
+
+
 }
 
 module.exports = new SubscriptionController();

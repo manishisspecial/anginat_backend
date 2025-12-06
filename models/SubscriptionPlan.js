@@ -16,24 +16,25 @@ const subscriptionPlanSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  
+
   // Pricing Information
-  pricing: {
-    amount: {
-      type: Number,
-      default: 0
-    },
+  pricing: [{
     currency: {
       type: String,
-      default: 'USD'
+      required: true,
+      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD'] // Add supported currencies
+    },
+    amount: {
+      type: Number,
+      required: true
     },
     billingCycle: {
       type: String,
-      enum: ['monthly', 'yearly'],
+      enum: ['weekly','quaterly','monthly','half-yearly' ,'yearly'],
       default: 'monthly'
     }
-  },
-  
+  }],
+
   // Resource Limits
   limits: {
     maxStudents: { type: Number, default: null }, // null = unlimited
@@ -44,7 +45,7 @@ const subscriptionPlanSchema = new mongoose.Schema({
     maxAnnouncements: { type: Number, default: null },
     maxMediaFiles: { type: Number, default: null }
   },
-  
+
   // Feature Access Configuration
   features: [{
     featureId: {
@@ -66,7 +67,7 @@ const subscriptionPlanSchema = new mongoose.Schema({
       default: 'monthly'
     }
   }],
-  
+
   // Plan Status
   isActive: {
     type: Boolean,
