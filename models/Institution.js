@@ -45,6 +45,9 @@ const institutionSchema = new mongoose.Schema({
     profileUrl: {
         type: String
     },
+    coverUrl: {
+        type: String
+    },
     logoUrl: {
         type: String
     },
