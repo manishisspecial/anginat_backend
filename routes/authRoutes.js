@@ -24,7 +24,7 @@ router.post(
   AuthController.createUser
 );
 
-
+router.post("/update-user", verifyToken, AuthController.updateUserDetails);
 router.post("/upload-profile-image", verifyToken,upload.single("profile"), AuthController.uploadProfileImage);
 router.post("/upload-cover-image", verifyToken, upload.single("cover"), AuthController.uploadCoverImage);
 

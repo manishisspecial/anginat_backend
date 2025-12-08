@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const OtpService = require("../services/OtpService");
 const UserRepository = require("../repositories/UserRepository");
 const imagekit = require("../utils/imageKit");
+const { updateUserDataSchema } = require("../validations/UserValidation");
 
 class AuthController {
   async register(req, res) {
@@ -336,13 +337,13 @@ class AuthController {
     try {
       const { emailOrUsername, password } = req.body;
       const user = await UserService.login(emailOrUsername, password);
-  
+
       if (!user) {
         return sendErrorResponse(res, "Invalid credentials", 400);
       }
 
       console.log("Console User:", user.isActive);
-      
+
       if (!user.isActive) {
         return sendErrorResponse(res, "User account is inactive", 403);
       }
@@ -424,7 +425,7 @@ class AuthController {
 
   async getUserInfo(req, res) {
     try {
-      
+
       const id = req.user.id;
       const user = await UserService.findById(id);
       if (!user) {
@@ -551,6 +552,37 @@ class AuthController {
     } catch (error) {
       console.error("Error occurred while finding user:", error);
       return sendErrorResponse(res, "Error finding user", 500, error.message || error);
+    }
+  }
+
+  async updateUserDetails(req, res) {
+    try {
+      const { id: userId } = req.user;
+      const updateData = req.body;
+
+      // Validate updateData with Joi schema
+      const { error, value } = updateUserDataSchema.validate(updateData, { abortEarly: false });
+
+      if (error) {
+        const errorMessages = error.details.map(detail => detail.message).join(", ");
+        return sendErrorResponse(res, errorMessages, 400);
+      }
+
+      const findUserByUsername = await UserService.findByUsername(value.username);
+      if (findUserByUsername && findUserByUsername._id.toString() !== userId) {
+        return sendErrorResponse(res, "Username already taken", 400);
+      }
+
+      const findByPhoneNumber = await UserService.findByPhone(value.phoneNumber);
+      if (findByPhoneNumber && findByPhoneNumber._id.toString() !== userId) {
+        return sendErrorResponse(res, "Phone number already in use", 400);
+      }
+
+      const updatedUser = await UserService.updateUserData(userId, value);
+      return sendSuccessResponse(res, "User details updated successfully", updatedUser);
+    } catch (error) {
+      console.error("Error updating user details:", error);
+      return sendErrorResponse(res, "Error updating user details", 500, error.message || error);
     }
   }
 
