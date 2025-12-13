@@ -25,7 +25,7 @@ const allowedOrigins = [
   "https://www.anginatlearning.com",
   "Anginatevents.com",
   "https://main.d2p986kto1ef06.amplifyapp.com",
-  "https://learning.anginat.com",
+  "https://admin.anginatlearning.com",
   "https://www.springlearns.com",
   "https://testing.d2uojw7xfu916c.amplifyapp.com",
   "https://ravneet.de9ljefa2nzpw.amplifyapp.com", 
