@@ -611,6 +611,8 @@ class LeadController {
           email: data.email,
           message: data.message,
           phoneNumber: data.phoneNumber,
+          company: data.company,
+          inquiryType: data.inquiryType
         })
       });
 
@@ -634,8 +636,6 @@ class LeadController {
       "email",
       "phoneNumber",
       "eventType",
-      "preferredDate",
-      "preferredTime"
     ];
     
     for (const field of requiredFields) {
@@ -655,9 +655,7 @@ class LeadController {
       company: data.company,
       phoneNumber: data.phoneNumber,
       eventType: data.eventType,
-      preferredDate: data.preferredDate,
-      preferredTime: data.preferredTime,
-      expectedAttendees: data.expectedAttendees,
+      expectedAttendees: data.attendees,
       message: data.message
     };
 
@@ -676,9 +674,7 @@ class LeadController {
           phoneNumber: data.phoneNumber,
           company: data.company,
           eventType: data.eventType,
-          preferredDate: data.preferredDate,
-          preferredTime: data.preferredTime,
-          expectedAttendees: data.expectedAttendees
+          expectedAttendees: data.attendees
         })
       });
 

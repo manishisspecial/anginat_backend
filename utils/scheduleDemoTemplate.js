@@ -5,8 +5,6 @@ const scheduleDemoTemplate = ({
   phoneNumber,
   eventType,
   eventDate,
-  preferedDate,
-  preferedTime,
   expectedAttendees,
   message
 }) => {
@@ -21,8 +19,6 @@ const scheduleDemoTemplate = ({
           <p><strong>Phone Number:</strong> ${phoneNumber}</p>
           <p><strong>Event Type:</strong> ${eventType}</p>
           <p><strong>Event Date:</strong> ${eventDate}</p>
-          <p><strong>Preferred Date:</strong> ${preferedDate}</p>
-          <p><strong>Preferred Time:</strong> ${preferedTime}</p>
           ${expectedAttendees ? `<p><strong>Expected Attendees:</strong> ${expectedAttendees}</p>` : ''}
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
         </div>
