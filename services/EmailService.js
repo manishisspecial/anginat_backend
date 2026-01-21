@@ -2,7 +2,7 @@ const axios = require('axios');
 
 class EmailService {
 
-    static async sendEmail({ from, subject, body, attachment = null }) {
+    static async sendEmail({ from,to, subject, body, attachment = null }) {
         const params = {
             sender: {
                 name: "AnginatEvents Website",
@@ -12,7 +12,7 @@ class EmailService {
                 email: from, // User's email goes here
             },
             to: [{
-                email: "info@anginat.com", // Your team's email
+                email: to, // Your team's email
                 name: "Contact Team"
             }],
             subject: subject,

@@ -594,6 +594,14 @@ class LeadController {
       );
     }
 
+    if (!data.to) {
+      return sendErrorResponse(
+        res,
+        `receiver email is required`,
+        400
+      );
+    }
+
     if (!data.name || !data.message) {
       return sendErrorResponse(
         res,
@@ -605,6 +613,7 @@ class LeadController {
     try {
       await EmailService.sendEmail({
         from: data.email,
+        to: data.to,
         subject: `Contact Us Lead from ${data.name} `,
         body: contactUsTemplate({
           name: data.name,
@@ -638,6 +647,14 @@ class LeadController {
       "eventType",
     ];
 
+    if (!data.to) {
+      return sendErrorResponse(
+        res,
+        `receiver email is required`,
+        400
+      );
+    }
+
     for (const field of requiredFields) {
       if (!data[field]) {
         return sendErrorResponse(
@@ -665,6 +682,7 @@ class LeadController {
       // Send email notification (customize as needed)
       await EmailService.sendEmail({
         from: data.email,
+        to: data.to,
         subject: `Schedule Demo Request from ${data.name}`,
         body: scheduleDemoTemplate({
           name: data.name,
