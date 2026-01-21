@@ -18,7 +18,6 @@ const scheduleDemoTemplate = ({
           ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
           <p><strong>Phone Number:</strong> ${phoneNumber}</p>
           <p><strong>Event Type:</strong> ${eventType}</p>
-          <p><strong>Event Date:</strong> ${eventDate}</p>
           ${expectedAttendees ? `<p><strong>Expected Attendees:</strong> ${expectedAttendees}</p>` : ''}
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
         </div>

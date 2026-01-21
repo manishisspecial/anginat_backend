@@ -136,7 +136,7 @@
 //       return sendSuccessResponse(res, "Lead updated successfully", {
 //         updatedLead,
 //       });
-      
+
 //     } catch (error) {
 //       console.error("Update Lead Error:", {
 //         message: error.message,
@@ -363,6 +363,7 @@ const { sendEmail } = require("../services/SendgridService");
 const contactUsTemplate = require("../utils/contactUsTemplate");
 const { preferences } = require("joi");
 const scheduleDemoTemplate = require("../utils/scheduleDemoTemplate");
+const EmailService = require("../services/EmailService");
 require("dotenv").config();
 
 class LeadController {
@@ -378,11 +379,11 @@ class LeadController {
       }
 
       // Enhanced country code handling
-      if (!leadData.countryCode || 
-          leadData.countryCode.toString().trim() === '' || 
-          leadData.countryCode === null || 
-          leadData.countryCode === undefined) {
-        
+      if (!leadData.countryCode ||
+        leadData.countryCode.toString().trim() === '' ||
+        leadData.countryCode === null ||
+        leadData.countryCode === undefined) {
+
         leadData.countryCode = '+91';
       } else {
         // Ensure it's a string and trim any whitespace
@@ -459,11 +460,11 @@ class LeadController {
     try {
       const { leadId, updateData } = req.body;
       const userRole = req.user.role;
-      
+
       if (userRole !== "admin" && userRole !== "super-admin") {
         return sendErrorResponse(res, "Permission denied", 403);
       }
-      
+
       const allowedFields = [
         "course",
         "applicantName",
@@ -472,7 +473,7 @@ class LeadController {
         "email",
         "status",
       ];
-      
+
       const invalidFields = Object.keys(updateData).filter(
         (field) => !allowedFields.includes(field)
       );
@@ -484,14 +485,14 @@ class LeadController {
           400
         );
       }
-      
+
       // Enhanced country code handling for updates
-      if (!('countryCode' in updateData) || 
-          !updateData.countryCode || 
-          updateData.countryCode.toString().trim() === '') {
-        
+      if (!('countryCode' in updateData) ||
+        !updateData.countryCode ||
+        updateData.countryCode.toString().trim() === '') {
+
         const existingLead = await LeadService.getLeadById(leadId);
-        
+
         if (existingLead && existingLead.countryCode && existingLead.countryCode.trim() !== '') {
           updateData.countryCode = existingLead.countryCode;
         } else {
@@ -503,14 +504,14 @@ class LeadController {
       }
 
       await LeadService.updateLead(leadId, updateData);
-      
+
       // Fetch the updated lead from DB to ensure all fields are included
       const updatedLead = await LeadService.getLeadById(leadId);
-      
+
       return sendSuccessResponse(res, "Lead updated successfully", {
         updatedLead,
       });
-      
+
     } catch (error) {
       console.error("Update Lead Error:", {
         message: error.message,
@@ -602,12 +603,11 @@ class LeadController {
     }
 
     try {
-      await sendEmail({
-        recipientEmail: "events@anginat.com",
-        subject: "Contact Us Lead",
-        text: "Contact Us Lead",
-        html: contactUsTemplate({
-          name: data.firstName + " " + data.lastName,
+      await EmailService.sendEmail({
+        from: data.email,
+        subject: `Contact Us Lead from ${data.name} `,
+        body: contactUsTemplate({
+          name: data.name,
           email: data.email,
           message: data.message,
           phoneNumber: data.phoneNumber,
@@ -637,7 +637,7 @@ class LeadController {
       "phoneNumber",
       "eventType",
     ];
-    
+
     for (const field of requiredFields) {
       if (!data[field]) {
         return sendErrorResponse(
@@ -663,11 +663,10 @@ class LeadController {
       // You can save the lead to DB here if needed
 
       // Send email notification (customize as needed)
-      await sendEmail({
-        recipientEmail: "info@anginat.com",
-        subject: "Schedule Demo Request",
-        text: "Schedule Demo Request",
-        html: scheduleDemoTemplate({
+      await EmailService.sendEmail({
+        from: data.email,
+        subject: `Schedule Demo Request from ${data.name}`,
+        body: scheduleDemoTemplate({
           name: data.name,
           email: data.email,
           message: data.message,
@@ -711,7 +710,7 @@ class LeadController {
           message: data.message
         }),
       });
-      
+
       return sendSuccessResponse(res, "Contact Us Form Submitted");
     } catch (error) {
       return sendErrorResponse(

@@ -23,7 +23,7 @@ const allowedOrigins = [
   "http://localhost:5172",
   "http://localhost:5173",
   "https://www.anginatlearning.com",
-  "Anginatevents.com",
+  "https://anginatevents.com",
   "https://main.d2p986kto1ef06.amplifyapp.com",
   "https://admin.anginatlearning.com",
   "https://www.springlearns.com",
