@@ -621,6 +621,7 @@ class LeadController {
           message: data.message,
           phoneNumber: data.phoneNumber,
           company: data.company,
+          course: data.course,
           inquiryType: data.inquiryType
         })
       });

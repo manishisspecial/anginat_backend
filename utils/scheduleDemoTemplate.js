@@ -16,8 +16,8 @@ const scheduleDemoTemplate = ({
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email Address:</strong> ${email}</p>
           ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
-          <p><strong>Phone Number:</strong> ${phoneNumber}</p>
-          <p><strong>Event Type:</strong> ${eventType}</p>
+          ${phoneNumber ? `<p><strong>Phone Number:</strong> ${phoneNumber}</p>` : ''}
+          ${eventType ? `<p><strong>Event Type:</strong> ${eventType}</p>` : ''}
           ${expectedAttendees ? `<p><strong>Expected Attendees:</strong> ${expectedAttendees}</p>` : ''}
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
         </div>
