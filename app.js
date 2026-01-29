@@ -29,7 +29,8 @@ const allowedOrigins = [
   "https://www.springlearns.com",
   "https://testing.d2uojw7xfu916c.amplifyapp.com",
   "https://ravneet.de9ljefa2nzpw.amplifyapp.com", 
-  "https://main.d336rzhcy31fea.amplifyapp.com"
+  "https://main.d336rzhcy31fea.amplifyapp.com",
+  "https://screenshiksha.com"
 ];
 
 const corsOptions = {
