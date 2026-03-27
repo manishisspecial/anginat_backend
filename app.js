@@ -15,8 +15,10 @@ const featureManagementRoutes = require("./routes/featureManagementRoutes");
 const permissionRoutes = require("./routes/permissionRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const roleRoutes = require("./routes/roleRoutes");
+const connectDatabase = require("./config/database");
 dotenv.config();
 const app = express();
+connectDatabase();
 
 const staticAllowedOrigins = [
   "http://localhost:3001",
