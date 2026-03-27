@@ -73,6 +73,26 @@ class UserRepository {
         const user = new User(userData);
         return await user.save(options);
     }
+
+    async searchByKeyword(keyword, institutionId, limit = 50) {
+        if (!keyword || !String(keyword).trim()) {
+            return [];
+        }
+        const q = String(keyword).trim();
+        const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        const filter = {
+            institutionId: institutionId,
+            $or: [
+                { name: regex },
+                { email: regex },
+                { username: regex },
+            ],
+        };
+        return await User.find(filter)
+            .select('-password')
+            .limit(limit)
+            .lean();
+    }
 }
 
 module.exports = new UserRepository();

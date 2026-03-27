@@ -14,6 +14,7 @@ const accessControlRoutes = require("./routes/accessControlRoutes");
 const featureManagementRoutes = require("./routes/featureManagementRoutes");
 const permissionRoutes = require("./routes/permissionRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
+const roleRoutes = require("./routes/roleRoutes");
 dotenv.config();
 const app = express();
 
@@ -62,6 +63,7 @@ app.use("/api/rbac/access-control",accessControlRoutes);
 app.use("/api/rbac/feature", featureManagementRoutes);
 app.use("/api/rbac/permission", permissionRoutes);
 app.use("/api/rbac/subscription", subscriptionRoutes);
+app.use("/api/roles", roleRoutes);
 
 app.get('/__vite_ping', (req, res) => {
   res.sendStatus(200); // respond OK to silence the 404

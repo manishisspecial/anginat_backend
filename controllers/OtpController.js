@@ -37,11 +37,12 @@ class OtpController {
                 { expiresIn: "10m" }
             );
 
+            const isProduction = process.env.NODE_ENV === "production";
             res.cookie("verifiedToken", verifiedToken, {
                 httpOnly: true,
-                secure: true, // Use secure cookies in production
-                sameSite: "None", // Required for cross-origin cookies
-                maxAge: 10 * 60 * 1000, // 10 minutes
+                secure: isProduction,
+                sameSite: isProduction ? "None" : "Lax",
+                maxAge: 10 * 60 * 1000,
                 path: "/",
             });
 

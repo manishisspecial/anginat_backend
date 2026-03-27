@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const OtpService = require("../services/OtpService");
 const UserRepository = require("../repositories/UserRepository");
 const imagekit = require("../utils/imageKit");
-const { updateUserDataSchema } = require("../validations/UserValidation");
+const { updateUserDataSchema, adminUpdateUserSchema } = require("../validations/UserValidation");
 
 class AuthController {
   async register(req, res) {
@@ -16,16 +16,17 @@ class AuthController {
       const {
         email,
         phoneNumber,
-        countryCode = '+91', // Default to +91 if not provided
+        countryCode = '+91',
         username,
         password,
-        role,
+        role: rawRole,
         status,
-        name, // Added name
+        name,
         institutionData,
       } = req.body;
 
-      // Validate name for instructors
+      const role = rawRole ? rawRole.toLowerCase() : rawRole;
+
       if (role === "instructor" && !name) {
         await session.abortTransaction();
         return sendErrorResponse(res, "Name is required for instructors", 400);
@@ -167,16 +168,17 @@ class AuthController {
       const {
         email,
         phoneNumber,
-        countryCode = '+91', // Default to +91 if not provided
+        countryCode = '+91',
         username,
         password,
-        role,
+        role: rawRole,
         status,
         name,
         institutionId,
       } = req.body;
 
-      // Validate name for instructors
+      const role = rawRole ? rawRole.toLowerCase() : rawRole;
+
       if (role === "instructor" && !name) {
         await session.abortTransaction();
         return sendErrorResponse(res, "Name is required for instructors", 400);
@@ -276,26 +278,43 @@ class AuthController {
 
   async forgotPassword(req, res) {
     try {
-      const { email, otpType } = req.body;
-      const user = await UserService.findByEmail(email);
-      if (!user) return sendErrorResponse(res, "User not found", 404);
-      const otpCode = await OtpService.generateOtp(otpType, email);
-      await OtpService.sendOtpEmail(email, otpCode);
-      return sendSuccessResponse(res, "OTP sent to email for password reset");
+      const { email, otpType = 'email' } = req.body;
+      if (!email || !String(email).trim()) {
+        return sendErrorResponse(res, "Email is required for password reset", 400);
+      }
+      const emailTrimmed = String(email).trim();
+      const user = await UserService.findByEmail(emailTrimmed);
+      if (!user) {
+        return sendErrorResponse(res, "No account found with this email address", 404);
+      }
+      // Ensure OTP email can be sent (validate required env)
+      if (!process.env.SENDGRID_API_KEY || !process.env.OTP_EMAIL) {
+        console.error("Missing SENDGRID_API_KEY or OTP_EMAIL for password reset email");
+        return sendErrorResponse(
+          res,
+          "Password reset email is not configured. Please contact support.",
+          503
+        );
+      }
+      const effectiveOtpType = otpType === 'password_reset' ? 'email' : otpType;
+      const otpCode = await OtpService.generateOtp(effectiveOtpType, emailTrimmed);
+      await OtpService.sendOtpEmail(emailTrimmed, otpCode);
+      return sendSuccessResponse(res, "OTP sent to your registered email for password reset");
     } catch (error) {
+      console.error("Forgot password OTP error:", error);
+      const status = (error.message && (error.message.includes("Email") || error.message.includes("configured"))) ? 503 : 500;
       return sendErrorResponse(
         res,
-        "Failed to send OTP for password reset",
-        500,
+        "Failed to send password reset OTP to email. Please try again or contact support.",
+        status,
         error.message || error
       );
     }
   }
 
   async updatePassword(req, res) {
-    const { email, newPassword } = req.body;
+    const { newPassword } = req.body;
     const verifiedToken = req.cookies.verifiedToken;
-    console.log("Verified Token:", verifiedToken);
 
     if (!verifiedToken) {
       return res
@@ -304,19 +323,23 @@ class AuthController {
     }
 
     try {
-
       const decoded = jwt.verify(verifiedToken, process.env.VERIFY_OTP_SECRET);
+      const verifiedEmail = decoded.email;
+      if (!verifiedEmail) {
+        return sendErrorResponse(res, "Invalid reset token", 400);
+      }
 
       const user = await UserService.updatePassword(
-        email,
+        verifiedEmail,
         newPassword
       );
       if (!user) return sendErrorResponse(res, "User not found", 404);
 
+      const isProduction = process.env.NODE_ENV === "production";
       res.clearCookie("verifiedToken", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
       });
 
       return sendSuccessResponse(res, "Password updated successfully");
@@ -555,27 +578,46 @@ class AuthController {
     }
   }
 
+  async searchUsers(req, res) {
+    try {
+      const institutionId = req.user?.institutionId;
+      if (!institutionId) {
+        return sendErrorResponse(res, "Unauthorized or institution context missing", 401);
+      }
+      const keyword = req.query.q || req.query.keyword || "";
+      const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100);
+      const results = await UserService.searchUsers(keyword, institutionId, limit);
+      return sendSuccessResponse(res, "Search results", results);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      return sendErrorResponse(res, "Error searching users", 500, error.message || error);
+    }
+  }
+
   async updateUserDetails(req, res) {
     try {
       const { id: userId } = req.user;
       const updateData = req.body;
-
-      // Validate updateData with Joi schema
-      const { error, value } = updateUserDataSchema.validate(updateData, { abortEarly: false });
+      // Do not allow role change in self-update
+      const { role: _r, ...dataWithoutRole } = updateData;
+      const { error, value } = updateUserDataSchema.validate(dataWithoutRole, { abortEarly: false });
 
       if (error) {
         const errorMessages = error.details.map(detail => detail.message).join(", ");
         return sendErrorResponse(res, errorMessages, 400);
       }
 
-      const findUserByUsername = await UserService.findByUsername(value.username);
-      if (findUserByUsername && findUserByUsername._id.toString() !== userId) {
-        return sendErrorResponse(res, "Username already taken", 400);
+      if (value.username) {
+        const findUserByUsername = await UserService.findByUsername(value.username);
+        if (findUserByUsername && findUserByUsername._id.toString() !== userId) {
+          return sendErrorResponse(res, "Username already taken", 400);
+        }
       }
-
-      const findByPhoneNumber = await UserService.findByPhone(value.phoneNumber);
-      if (findByPhoneNumber && findByPhoneNumber._id.toString() !== userId) {
-        return sendErrorResponse(res, "Phone number already in use", 400);
+      if (value.phoneNumber) {
+        const findByPhoneNumber = await UserService.findByPhone(value.phoneNumber);
+        if (findByPhoneNumber && findByPhoneNumber._id.toString() !== userId) {
+          return sendErrorResponse(res, "Phone number already in use", 400);
+        }
       }
 
       const updatedUser = await UserService.updateUserData(userId, value);
@@ -583,6 +625,39 @@ class AuthController {
     } catch (error) {
       console.error("Error updating user details:", error);
       return sendErrorResponse(res, "Error updating user details", 500, error.message || error);
+    }
+  }
+
+  async updateUserByAdmin(req, res) {
+    try {
+      const { userId: targetUserId } = req.params;
+      const updateData = req.body;
+
+      const { error, value } = adminUpdateUserSchema.validate(updateData, { abortEarly: false });
+      if (error) {
+        const errorMessages = error.details.map(detail => detail.message).join(", ");
+        return sendErrorResponse(res, errorMessages, 400);
+      }
+
+      const targetUser = await UserService.findById(targetUserId);
+      if (!targetUser) {
+        return sendErrorResponse(res, "User not found", 404);
+      }
+
+      if (value.username && value.username !== targetUser.username) {
+        const existing = await UserService.findByUsername(value.username);
+        if (existing) return sendErrorResponse(res, "Username already taken", 400);
+      }
+      if (value.phoneNumber && value.phoneNumber !== targetUser.phoneNumber) {
+        const existing = await UserService.findByPhone(value.phoneNumber);
+        if (existing) return sendErrorResponse(res, "Phone number already in use", 400);
+      }
+
+      const updatedUser = await UserService.updateUserData(targetUserId, value);
+      return sendSuccessResponse(res, "User updated successfully", updatedUser);
+    } catch (error) {
+      console.error("Error updating user by admin:", error);
+      return sendErrorResponse(res, "Error updating user", 500, error.message || error);
     }
   }
 
@@ -705,6 +780,79 @@ class AuthController {
       return sendErrorResponse(
         res,
         "Error uploading cover image",
+        500,
+        error.message || error
+      );
+    }
+  }
+
+  async getUsersByRole(req, res) {
+    try {
+      const institutionId = req.user?.institutionId || req.user?.institution;
+      if (!institutionId) {
+        return sendErrorResponse(res, "Institution context missing", 401);
+      }
+      const { role, search, page = 1, limit = 50 } = req.query;
+      const filter = { institutionId };
+      if (role) filter.role = role.toLowerCase();
+
+      if (search && search.trim()) {
+        const regex = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [{ name: regex }, { email: regex }, { username: regex }];
+      }
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const User = require('../models/User');
+      const [users, total] = await Promise.all([
+        User.find(filter).select('-password').skip(skip).limit(parseInt(limit)).sort({ createdAt: -1 }).lean(),
+        User.countDocuments(filter)
+      ]);
+
+      return sendSuccessResponse(res, "Users fetched", {
+        users,
+        total,
+        page: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit))
+      });
+    } catch (error) {
+      console.error("Error fetching users by role:", error);
+      return sendErrorResponse(res, "Error fetching users", 500, error.message);
+    }
+  }
+
+  async deleteUser(req, res) {
+    try {
+      const { userId } = req.params;
+      const User = require('../models/User');
+      const user = await User.findById(userId);
+      if (!user) {
+        return sendErrorResponse(res, "User not found", 404);
+      }
+      await User.findByIdAndDelete(userId);
+      return sendSuccessResponse(res, "User deleted successfully");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return sendErrorResponse(res, "Error deleting user", 500, error.message);
+    }
+  }
+
+  async deleteProfileImage(req, res) {
+    try {
+      const { id: userId } = req.user;
+      if (!userId) {
+        return sendErrorResponse(res, "User ID is required", 400);
+      }
+      const updatedUser = await UserService.updateUserData(userId, { profileUrl: null });
+      return sendSuccessResponse(
+        res,
+        "Profile picture removed successfully",
+        updatedUser
+      );
+    } catch (error) {
+      console.error("Error deleting profile image:", error);
+      return sendErrorResponse(
+        res,
+        "Error removing profile picture",
         500,
         error.message || error
       );

@@ -1,13 +1,12 @@
 const OtpRepository = require("../repositories/OtpRepository");
-const nodemailer = require("nodemailer");
-const unirest = require("unirest");
 const sgMail = require("@sendgrid/mail");
-const axios = require("axios")
+const axios = require("axios");
 class OtpService {
     
   async generateOtp(otpType, receiverId) {
+    await OtpRepository.invalidateOtps(receiverId, otpType);
     const otpCode = this._generateOtpCode();
-    const otp = await OtpRepository.createOtp({
+    await OtpRepository.createOtp({
       receiverId,
       otp: otpCode,
       otpType,
@@ -17,7 +16,6 @@ class OtpService {
   }
 
   async verifyOtp(otp, receiverId, otpType) {
-    console.log(otp, receiverId, otpType);
     const storedOtp = await OtpRepository.findOtp(otp, receiverId, otpType);
     if (
       !storedOtp ||

@@ -42,43 +42,36 @@ class PermissionController {
     }
 
     async assignFeatureToUser(req, res) {
-        async (req, res) => {
-            try {
-                const { userId } = req.params;
-                const { featureId, permissions, reason } = req.body;
-                const grantedBy = req.user.id;
+        try {
+            const { userId } = req.params;
+            const { featureId, permissions, reason } = req.body;
+            const grantedBy = req.user.id;
 
-                const result = await AccessControlService.grantFeatureAccess(
-                    userId,
-                    featureId,
-                    permissions,
-                    reason,
-                    grantedBy
-                );
+            const result = await AccessControlService.grantFeatureAccess(
+                userId,
+                featureId,
+                permissions,
+                reason,
+                grantedBy
+            );
 
-                sendSuccessResponse(res, 'Feature access granted successfully', result);
-
-            } catch (error) {
-                console.error('Error granting feature access:', error);
-                sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
-            }
+            sendSuccessResponse(res, 'Feature access granted successfully', result);
+        } catch (error) {
+            console.error('Error granting feature access:', error);
+            sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
 
-
     async revokeFeatureAccess(req, res) {
-        async (req, res) => {
-            try {
-                const { userId, featureId } = req.params;
+        try {
+            const { userId, featureId } = req.params;
 
-                const result = await AccessControlService.revokeFeatureAccess(userId, featureId);
+            const result = await AccessControlService.revokeFeatureAccess(userId, featureId);
 
-                sendSuccessResponse(res, 'Feature access revoked successfully', result);
-
-            } catch (error) {
-                console.error('Error revoking feature access:', error);
-                sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
-            }
+            sendSuccessResponse(res, 'Feature access revoked successfully', result);
+        } catch (error) {
+            console.error('Error revoking feature access:', error);
+            sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
 

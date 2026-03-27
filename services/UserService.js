@@ -95,6 +95,15 @@ class UserService {
             throw new Error('Error updating user data');
         }
     }
+
+    async searchUsers(keyword, institutionId, limit = 50) {
+        try {
+            return await UserRepository.searchByKeyword(keyword, institutionId, limit);
+        } catch (error) {
+            console.error("Error searching users:", error.message || error);
+            throw new Error('Error searching users');
+        }
+    }
 }
 
 module.exports = new UserService();
