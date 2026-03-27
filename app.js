@@ -67,13 +67,13 @@ app.options("*", cors(corsOptions));
 // Keeps the admin frontend on one origin and avoids browser CORS to studentapi.
 const externalStudentApiOrigin =
   process.env.EXTERNAL_STUDENT_API_ORIGIN || "https://studentapi.anginatlearning.com";
-const apiProxy = createProxyMiddleware({
+const apiProxyOptions = {
   target: externalStudentApiOrigin,
   changeOrigin: true,
   secure: true,
-});
-app.use("/api/course", apiProxy);
-app.use("/api/student", apiProxy);
+};
+app.use("/api/course", createProxyMiddleware(apiProxyOptions));
+app.use("/api/student", createProxyMiddleware(apiProxyOptions));
 
 app.use(express.json());
 app.use(cookieParser());
