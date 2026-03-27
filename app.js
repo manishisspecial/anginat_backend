@@ -16,6 +16,7 @@ const permissionRoutes = require("./routes/permissionRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const connectDatabase = require("./config/database");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 dotenv.config();
 const app = express();
 connectDatabase();
@@ -61,6 +62,19 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
+// Proxy course + student APIs to the legacy public API (same paths under /api).
+// Keeps the admin frontend on one origin and avoids browser CORS to studentapi.
+const externalStudentApiOrigin =
+  process.env.EXTERNAL_STUDENT_API_ORIGIN || "https://studentapi.anginatlearning.com";
+const apiProxy = createProxyMiddleware({
+  target: externalStudentApiOrigin,
+  changeOrigin: true,
+  secure: true,
+});
+app.use("/api/course", apiProxy);
+app.use("/api/student", apiProxy);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));

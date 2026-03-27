@@ -21,6 +21,7 @@
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1",
     "express-validator": "^7.0.1",
+    "http-proxy-middleware": "^3.0.5",
     "imagekit": "^5.2.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
