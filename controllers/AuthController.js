@@ -7,6 +7,7 @@ const OtpService = require("../services/OtpService");
 const UserRepository = require("../repositories/UserRepository");
 const imagekit = require("../utils/imageKit");
 const { updateUserDataSchema, adminUpdateUserSchema } = require("../validations/UserValidation");
+const connectDatabase = require("../config/database");
 
 class AuthController {
   async register(req, res) {
@@ -358,6 +359,7 @@ class AuthController {
 
   async login(req, res) {
     try {
+      await connectDatabase();
       const { emailOrUsername, password } = req.body;
       const user = await UserService.login(emailOrUsername, password);
 

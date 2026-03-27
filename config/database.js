@@ -2,16 +2,21 @@ const mongoose = require("mongoose");
 mongoose.set("strictQuery", true);
 
 const connectDatabase = () => {
-  if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) {
-    return Promise.resolve();
+  if (mongoose.connection.readyState === 1) {
+    return Promise.resolve(mongoose.connection);
+  }
+
+  if (mongoose.connection.readyState === 2) {
+    return mongoose.connection.asPromise();
   }
 
   const env = process.env.NODE_ENV === "production" ? "production" : "development";
   const config = require("./config")[env];
 
   if (!config?.mongodbUri) {
-    console.error(`Failed to connect to MongoDB: missing uri for env "${env}"`);
-    return Promise.resolve();
+    const err = new Error(`Failed to connect to MongoDB: missing uri for env "${env}"`);
+    console.error(err.message);
+    return Promise.reject(err);
   }
 
   return mongoose
