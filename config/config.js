@@ -6,7 +6,7 @@ module.exports = {
         mongodbOptions: { useNewUrlParser: true, useUnifiedTopology: true }
     },
     production: {
-        mongodbUri: process.env.MONGODB_URI_PROD,
+        mongodbUri: process.env.MONGODB_URI_PROD || process.env.MONGO_URI,
         mongodbOptions: { useNewUrlParser: true, useUnifiedTopology: true }
     }
 };
