@@ -18,12 +18,14 @@ const roleRoutes = require("./routes/roleRoutes");
 dotenv.config();
 const app = express();
 
-const allowedOrigins = [
+const staticAllowedOrigins = [
   "http://localhost:3001",
   "http://localhost:3000",
   "http://localhost:5172",
   "http://localhost:5173",
+  "https://anginat-frontend.vercel.app",
   "https://www.anginatlearning.com",
+  "https://anginatlearning.com",
   "https://anginatevents.com",
   "https://main.d2p986kto1ef06.amplifyapp.com",
   "https://admin.anginatlearning.com",
@@ -33,6 +35,13 @@ const allowedOrigins = [
   "https://main.d336rzhcy31fea.amplifyapp.com",
   "https://screenshiksha.com"
 ];
+
+const envAllowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [...new Set([...staticAllowedOrigins, ...envAllowedOrigins])];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -49,6 +58,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
