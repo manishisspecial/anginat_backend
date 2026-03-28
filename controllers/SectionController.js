@@ -8,7 +8,6 @@ const { SECTION_SEQUENCE } = require("../constants/input");
 class SectionController {
   async getAllSections(req, res) {
     if (!res) {
-      console.error("Response object is undefined in getAllSections");
       return;
     }
     try {
@@ -19,7 +18,6 @@ class SectionController {
       const sections = await SectionService.getAllSections(institutionId);
       sendSuccessResponse(res, "Sections retrieved successfully", sections);
     } catch (error) {
-      console.error("Error in getAllSections:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid institution ID from authentication"
@@ -35,7 +33,6 @@ class SectionController {
 
   async getSectionById(req, res) {
     if (!res) {
-      console.error("Response object is undefined in getSectionById");
       return;
     }
     try {
@@ -50,7 +47,6 @@ class SectionController {
       );
       sendSuccessResponse(res, "Section retrieved successfully", section);
     } catch (error) {
-      console.error("Error in getSectionById:", error);
       sendErrorResponse(
         res,
         error.message ===
@@ -72,7 +68,6 @@ class SectionController {
 
   async createSection(req, res) {
     if (!res) {
-      console.error("Response object is undefined in createSection");
       return;
     }
     try {
@@ -106,7 +101,6 @@ class SectionController {
       });
       sendSuccessResponse(res, "Section created successfully", newSection);
     } catch (error) {
-      console.error("Error in createSection:", error);
       sendErrorResponse(
         res,
         error.message === "AcademicClass is required"
@@ -150,7 +144,6 @@ class SectionController {
 
   async updateSection(req, res) {
     if (!res) {
-      console.error("Response object is undefined in updateSection");
       return;
     }
     try {

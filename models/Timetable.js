@@ -151,22 +151,8 @@ TimetableSchema.pre("save", async function (next) {
       !degree ||
       !semester
     ) {
-      console.error("One or more references are invalid:", {
-        institution,
-        academicClass,
-        section,
-        subject,
-        degree,
-        instructor,
-      });
       return next(new Error("Invalid reference in Timetable"));
     }
-
-    console.log("References found:", {
-      "academicClass Inst id": academicClass.institution,
-      "subject Inst id": subject.institution,
-      "instructor Inst id": instructor.institutionId,
-    });
 
     // Check for missing institution fields
     if (

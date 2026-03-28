@@ -39,20 +39,13 @@ class SemesterService {
       error.status = 400;
       throw error;
     }
-    console.log("Data before date conversion", data);
     data.startDate = new Date(startDate);
     data.endDate = new Date(endDate);
-    console.log("Data after date conversion", data);
 
     const academicClass = await AcademicClassRepository.findById(
       data.academicClass
     );
 
-    console.log(
-      "Institution Id from Academic Class",
-      academicClass.institution._id
-    );
-    console.log("Institution Id from Data", data.institution);
     if (
       !academicClass ||
       academicClass.institution._id.toString() !== data.institution.toString()

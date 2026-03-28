@@ -56,7 +56,6 @@ class FeatureAccessService {
             }
 
         } catch (error) {
-            console.error('Error checking feature access:', error);
             return {
                 hasAccess: false,
                 reason: 'Internal error'
@@ -240,7 +239,6 @@ class FeatureAccessService {
             return accessibleFeatures;
 
         } catch (error) {
-            console.error('Error getting accessible features:', error);
             return [];
         }
     }
@@ -280,7 +278,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error checking usage limit:', error);
             return {
                 withinLimit: false,
                 currentUsage: 0,
@@ -299,7 +296,6 @@ class FeatureAccessService {
         try {
             // Validate inputs
             if (!institutionId || !featureId) {
-                console.error('Invalid parameters for incrementUsage:', { institutionId, featureId });
                 return false;
             }
 
@@ -338,7 +334,6 @@ class FeatureAccessService {
             return true;
 
         } catch (error) {
-            console.error('Error incrementing usage:', error);
             return false;
         }
     }
@@ -415,7 +410,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error checking user permission:', error);
             return {
                 hasPermission: false,
                 reason: 'Internal error'
@@ -472,7 +466,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error checking feature and permission:', error);
             return {
                 hasAccess: false,
                 reason: 'Internal error'
@@ -533,7 +526,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error getting user permissions:', error);
             return {
                 all: [],
                 role: [],
@@ -577,7 +569,6 @@ class FeatureAccessService {
             return accessibleFeatures;
 
         } catch (error) {
-            console.error('Error getting accessible features:', error);
             return [];
         }
     }
@@ -634,7 +625,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error granting feature access:', error);
             return {
                 success: false,
                 message: 'Internal error'
@@ -670,7 +660,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error revoking feature access:', error);
             return {
                 success: false,
                 message: 'Internal error'
@@ -716,7 +705,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error adding user permission:', error);
             return {
                 success: false,
                 message: 'Internal error'
@@ -752,7 +740,6 @@ class FeatureAccessService {
             };
 
         } catch (error) {
-            console.error('Error removing user permission:', error);
             return {
                 success: false,
                 message: 'Internal error'

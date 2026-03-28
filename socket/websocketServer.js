@@ -9,20 +9,10 @@ class WebSocketManager {
     this.wss = new WebSocket.Server({ server: httpServer });
 
     this.wss.on("connection", (ws) => {
-      console.log("New WebSocket connection");
       this.clients.push(ws);
-
-      ws.on("message", (message) => {
-        console.log(`Received: ${message}`);
-      });
 
       ws.on("close", () => {
         this.clients = this.clients.filter((client) => client !== ws);
-        console.log("WebSocket client disconnected");
-      });
-
-      ws.on("error", (error) => {
-        console.error("WebSocket error:", error.message);
       });
     });
   }

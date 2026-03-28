@@ -6,7 +6,6 @@ const InstitutionService = require("../services/InstitutionService");
 class DegreeController {
   async createDegree(req, res) {
     if (!res) {
-      console.error("Response object is undefined in createDegree");
       return;
     }
     try {
@@ -28,7 +27,6 @@ class DegreeController {
       
       sendSuccessResponse(res, "Degree created successfully", newDegree);
     } catch (error) {
-      console.error("Error in createDegree:", error);
       sendErrorResponse(
         res,
         error.message ===
@@ -56,7 +54,6 @@ class DegreeController {
 
   async getDegreeById(req, res) {
     if (!res) {
-      console.error("Response object is undefined in getDegreeById");
       return;
     }
     try {
@@ -68,7 +65,6 @@ class DegreeController {
       const degree = await DegreeService.getDegreeById(degreeId, institutionId);
       sendSuccessResponse(res, "Degree retrieved successfully", degree);
     } catch (error) {
-      console.error("Error in getDegreeById:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid degree ID"
@@ -93,12 +89,9 @@ class DegreeController {
   }
 
   async getAllDegrees(req, res) {
-    console.log(req);
     if (!res) {
-      console.error("Response object is undefined in getAllDegrees");
       return;
     }
-    console.log("test");
     try {
       const institutionId = req.user?.institution;
       if (!institutionId || !mongoose.Types.ObjectId.isValid(institutionId)) {
@@ -107,7 +100,6 @@ class DegreeController {
       const degrees = await DegreeService.getAllDegrees(institutionId);
       sendSuccessResponse(res, "Degrees retrieved successfully", degrees);
     } catch (error) {
-      console.error("Error in getAllDegrees:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid institution ID from authentication"
@@ -123,7 +115,6 @@ class DegreeController {
 
   async updateDegree(req, res) {
     if (!res) {
-      console.error("Response object is undefined in updateDegree");
       return;
     }
     try {
@@ -143,7 +134,6 @@ class DegreeController {
       );
       sendSuccessResponse(res, "Degree updated successfully", updatedDegree);
     } catch (error) {
-      console.error("Error in updateDegree:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid degree ID"
@@ -176,7 +166,6 @@ class DegreeController {
 
   async deleteDegree(req, res) {
     if (!res) {
-      console.error("Response object is undefined in deleteDegree");
       return;
     }
     try {
@@ -191,7 +180,6 @@ class DegreeController {
       );
       sendSuccessResponse(res, "Degree deleted successfully", deletedDegree);
     } catch (error) {
-      console.error("Error in deleteDegree:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid degree ID"

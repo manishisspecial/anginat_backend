@@ -147,10 +147,6 @@ class AuthController {
         const messages = Object.values(error.errors).map((err) => err.message);
         return sendErrorResponse(res, messages.join(", "), 400);
       }
-      console.error("Registration Error:", {
-        message: error.message || error,
-        stack: error.stack,
-      });
       return sendErrorResponse(
         res,
         "Internal Server Error",
@@ -262,10 +258,6 @@ class AuthController {
         const messages = Object.values(error.errors).map((err) => err.message);
         return sendErrorResponse(res, messages.join(", "), 400);
       }
-      console.error("Registration Error:", {
-        message: error.message || error,
-        stack: error.stack,
-      });
       return sendErrorResponse(
         res,
         "Internal Server Error",
@@ -290,7 +282,6 @@ class AuthController {
       }
       // Ensure OTP email can be sent (validate required env)
       if (!process.env.SENDGRID_API_KEY || !process.env.OTP_EMAIL) {
-        console.error("Missing SENDGRID_API_KEY or OTP_EMAIL for password reset email");
         return sendErrorResponse(
           res,
           "Password reset email is not configured. Please contact support.",
@@ -302,7 +293,6 @@ class AuthController {
       await OtpService.sendOtpEmail(emailTrimmed, otpCode);
       return sendSuccessResponse(res, "OTP sent to your registered email for password reset");
     } catch (error) {
-      console.error("Forgot password OTP error:", error);
       const status = (error.message && (error.message.includes("Email") || error.message.includes("configured"))) ? 503 : 500;
       return sendErrorResponse(
         res,
@@ -367,15 +357,11 @@ class AuthController {
         return sendErrorResponse(res, "Invalid credentials", 400);
       }
 
-      console.log("Console User:", user.isActive);
-
       if (!user.isActive) {
         return sendErrorResponse(res, "User account is inactive", 403);
       }
 
-      console.log("Console User:", user.institutionId);
       const institution = await InstitutionService.findById(user.institutionId);
-      console.log("Console Institution:", institution);
 
       if (
         !institution ||
@@ -416,7 +402,6 @@ class AuthController {
         refreshToken,
       });
     } catch (error) {
-      console.error("Login Error:", error);
       return sendErrorResponse(
         res,
         "Internal Server Error",
@@ -430,7 +415,6 @@ class AuthController {
     try {
       const userInstitution = req.user.institutionId;
       const institution = await InstitutionService.findById(userInstitution);
-      console.log("Console Institution:", institution);
       if (
         !institution ||
         (institution.isActive === false || (institution.status && institution.status !== 'active'))
@@ -484,7 +468,6 @@ class AuthController {
       if (!user) {
         return sendErrorResponse(res, "Invalid refresh token", 403);
       }
-      console.log("Decoded User:", decoded);
 
       const accessToken = jwt.sign(
         {
@@ -498,7 +481,6 @@ class AuthController {
       );
       return sendSuccessResponse(res, "Token refreshed", { accessToken });
     } catch (error) {
-      console.log("Refresh Token Error:", error);
       return sendErrorResponse(res, "Invalid or expired refresh token", 403);
     }
   }
@@ -542,7 +524,6 @@ class AuthController {
         decoded,
       });
     } catch (error) {
-      console.error(error);
       return sendErrorResponse(
         res,
         "Invalid or expired token",
@@ -575,7 +556,6 @@ class AuthController {
 
       return sendSuccessResponse(res, "User found", userObj);
     } catch (error) {
-      console.error("Error occurred while finding user:", error);
       return sendErrorResponse(res, "Error finding user", 500, error.message || error);
     }
   }
@@ -591,7 +571,6 @@ class AuthController {
       const results = await UserService.searchUsers(keyword, institutionId, limit);
       return sendSuccessResponse(res, "Search results", results);
     } catch (error) {
-      console.error("Error searching users:", error);
       return sendErrorResponse(res, "Error searching users", 500, error.message || error);
     }
   }
@@ -625,7 +604,6 @@ class AuthController {
       const updatedUser = await UserService.updateUserData(userId, value);
       return sendSuccessResponse(res, "User details updated successfully", updatedUser);
     } catch (error) {
-      console.error("Error updating user details:", error);
       return sendErrorResponse(res, "Error updating user details", 500, error.message || error);
     }
   }
@@ -658,7 +636,6 @@ class AuthController {
       const updatedUser = await UserService.updateUserData(targetUserId, value);
       return sendSuccessResponse(res, "User updated successfully", updatedUser);
     } catch (error) {
-      console.error("Error updating user by admin:", error);
       return sendErrorResponse(res, "Error updating user", 500, error.message || error);
     }
   }
@@ -721,7 +698,6 @@ class AuthController {
       );
 
     } catch (error) {
-      console.error("Error uploading profile image:", error); // Log the error
       return sendErrorResponse(
         res,
         "Error uploading profile image",
@@ -778,7 +754,6 @@ class AuthController {
         updatedUser
       );
     } catch (error) {
-      console.error("Error uploading cover image:", error);
       return sendErrorResponse(
         res,
         "Error uploading cover image",
@@ -817,7 +792,6 @@ class AuthController {
         totalPages: Math.ceil(total / parseInt(limit))
       });
     } catch (error) {
-      console.error("Error fetching users by role:", error);
       return sendErrorResponse(res, "Error fetching users", 500, error.message);
     }
   }
@@ -833,7 +807,6 @@ class AuthController {
       await User.findByIdAndDelete(userId);
       return sendSuccessResponse(res, "User deleted successfully");
     } catch (error) {
-      console.error("Error deleting user:", error);
       return sendErrorResponse(res, "Error deleting user", 500, error.message);
     }
   }
@@ -851,7 +824,6 @@ class AuthController {
         updatedUser
       );
     } catch (error) {
-      console.error("Error deleting profile image:", error);
       return sendErrorResponse(
         res,
         "Error removing profile picture",

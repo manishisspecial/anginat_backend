@@ -22,31 +22,21 @@ const trackUsage = (featureName) => {
           .select('_id name')
           .lean();
       } catch (error) {
-        console.error('Error finding feature for tracking:', error);
         return next(); // Don't block request
       }
       
       if (!feature) {
-        console.warn(`Feature not found for tracking: ${featureName}`);
         return next(); // Don't block request
       }
       
       // Increment usage asynchronously (don't wait for completion)
       AccessControlService.incrementUsage(institutionId, feature._id)
-        .catch(error => {
-          console.error('Error tracking usage:', {
-            error: error.message,
-            featureName,
-            institutionId,
-            featureId: feature._id
-          });
-        });
+        .catch(() => {});
       
       // Continue with request immediately
       next();
       
     } catch (error) {
-      console.error('Usage tracking middleware error:', error);
       next(); // Never block request for tracking errors
     }
   };

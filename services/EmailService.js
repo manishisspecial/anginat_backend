@@ -48,8 +48,6 @@ class EmailService {
             return result;
 
         } catch (error) {
-            console.error('Brevo email sending error:', error.response?.data || error.message);
-
             if (error.response) {
                 throw new Error(`Brevo API Error: ${error.response.data.message || error.response.statusText}`);
             }

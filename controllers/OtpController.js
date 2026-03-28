@@ -13,7 +13,6 @@ class OtpController {
             if (otpType === "email") {
                 await OtpService.sendOtpEmail(receiverId, otpCode);
             } else if (otpType === "phone") {
-                console.log(receiverId, otpCode);
                 await OtpService.sendOtpSms(receiverId, otpCode); // Send SMS if otpType is sms
             } else {
                 return sendErrorResponse(res, 'Invalid otpType', 400);

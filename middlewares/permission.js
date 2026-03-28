@@ -41,7 +41,6 @@ const requirePermission = (permission) => {
       next();
       
     } catch (error) {
-      console.error('Permission middleware error:', error);
       return res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -99,7 +98,6 @@ const requireFeatureWithPermission = (featureName, permission) => {
       next();
       
     } catch (error) {
-      console.error('Feature with permission middleware error:', error);
       return res.status(500).json({
         success: false,
         message: 'Internal server error',

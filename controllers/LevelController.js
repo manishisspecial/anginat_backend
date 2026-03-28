@@ -6,19 +6,16 @@ const Institution = require("../models/Institution");
 class LevelController {
   async getAllLevels(req, res) {
     if (!res) {
-      console.error("Response object is undefined in getAllLevels");
       return;
     }
     try {
       const institutionId = req.user?.institution;
-      console.log(institutionId);
       if (!institutionId || !mongoose.Types.ObjectId.isValid(institutionId)) {
         throw new Error("Invalid institution ID from authentication");
       }
       const levels = await LevelService.getAllLevels(institutionId);
       sendSuccessResponse(res, "Levels retrieved successfully", levels);
     } catch (error) {
-      console.error("Error in getAllLevels:", error);
       sendErrorResponse(
         res,
         error.message === "Invalid institution ID from authentication"
@@ -34,7 +31,6 @@ class LevelController {
 
   async getLevelById(req, res) {
     if (!res) {
-      console.error("Response object is undefined in getLevelById");
       return;
     }
     try {
@@ -46,7 +42,6 @@ class LevelController {
       const level = await LevelService.getLevelById(levelId, institutionId);
       sendSuccessResponse(res, "Level retrieved successfully", level);
     } catch (error) {
-      console.error("Error in getLevelById:", error);
       sendErrorResponse(
         res,
         error.message ===
@@ -68,7 +63,6 @@ class LevelController {
 
   async createLevel(req, res) {
     if (!res) {
-      console.error("Response object is undefined in createLevel");
       return;
     }
     try {
@@ -88,7 +82,6 @@ class LevelController {
 
       sendSuccessResponse(res, "Level created successfully", newLevel);
     } catch (error) {
-      console.error("Error in createLevel:", error);
       sendErrorResponse(
         res,
         error.message === "Institution is required"
@@ -127,7 +120,6 @@ class LevelController {
 
   async updateLevel(req, res) {
     if (!res) {
-      console.error("Response object is undefined in updateLevel");
       return;
     }
     try {
@@ -158,7 +150,6 @@ class LevelController {
       );
       sendSuccessResponse(res, "Level updated successfully", updatedLevel);
     } catch (error) {
-      console.error("Error in updateLevel:", error);
       sendErrorResponse(
         res,
         error.message ===
@@ -194,7 +185,6 @@ class LevelController {
 
   async deleteLevel(req, res) {
     if (!res) {
-      console.error("Response object is undefined in deleteLevel");
       return;
     }
     try {
@@ -209,7 +199,6 @@ class LevelController {
       );
       sendSuccessResponse(res, "Level deleted successfully", deletedLevel);
     } catch (error) {
-      console.error("Error in deleteLevel:", error);
       sendErrorResponse(
         res,
         error.message ===

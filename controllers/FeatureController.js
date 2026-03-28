@@ -51,7 +51,6 @@ class FeatureController {
                     }))
                 });
             }
-            console.error('Error creating feature:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
@@ -177,8 +176,6 @@ class FeatureController {
                 features: groupedFeatures});
 
         } catch (error) {
-            console.error('Error fetching features:', error);
-           
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }

@@ -41,13 +41,7 @@ class OtpService {
       text: `Your OTP code is ${otpCode}. It will expire in 10 minutes.`,
       html: `<strong>Your OTP code is ${otpCode}. It will expire in 10 minutes.</strong>`,
     };
-    try {
-      await sgMail.send(msg);
-      console.log("Email sent successfully");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      throw error;
-    }
+    await sgMail.send(msg);
   }
 
   /*async sendOtpEmail(email, otpCode) {
@@ -91,13 +85,8 @@ class OtpService {
         }
       );
 
-      console.log("SMS sent successfully:", response.data);
       return response.data; // Return the API response for further use
     } catch (error) {
-      console.error(
-        "Error sending OTP:",
-        error.response?.data || error.message
-      );
       throw new Error(error.response?.data || "Failed to send OTP");
     }
   }

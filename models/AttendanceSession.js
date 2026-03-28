@@ -108,12 +108,6 @@ AttendanceSessionSchema.pre("save", async function (next) {
     if (!academicClass || !section || !subject || !timetable || !instructor) {
       return next(new Error("Invalid reference in AttendanceSession"));
     }
-    console.log("References found:", {
-      "academicClass Inst id": academicClass.institution,
-      "subject Inst id": subject.institution,
-      "timetable Inst id": timetable.institution,
-      "instructor Inst id": instructor.institutionId,
-    });
 
     // Check for missing institution fields
     if (

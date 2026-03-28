@@ -401,11 +401,6 @@ class LeadController {
 
       return sendSuccessResponse(res, "Lead created successfully", { lead });
     } catch (error) {
-      console.error("Create Lead Error:", {
-        message: error.message,
-        stack: error.stack,
-      });
-
       return sendErrorResponse(res, "Error creating lead", 500, error.message);
     }
   }
@@ -439,14 +434,6 @@ class LeadController {
         responseData
       );
     } catch (error) {
-      console.error("Get Leads Error:", {
-        message: error.message,
-        stack: error.stack,
-        user: {
-          role: req.user.role,
-          institution: req.user.institution,
-        },
-      });
       return sendErrorResponse(
         res,
         "Error retrieving leads",
@@ -513,10 +500,6 @@ class LeadController {
       });
 
     } catch (error) {
-      console.error("Update Lead Error:", {
-        message: error.message,
-        stack: error.stack,
-      });
       return sendErrorResponse(res, "Error updating lead", 500, error.message);
     }
   }
@@ -527,10 +510,6 @@ class LeadController {
       await LeadService.updateBulkStatus(leadIds, status);
       return sendSuccessResponse(res, "Lead statuses updated successfully");
     } catch (error) {
-      console.error("Update Bulk Status Error:", {
-        message: error.message,
-        stack: error.stack,
-      });
       return sendErrorResponse(
         res,
         "Error updating lead statuses",

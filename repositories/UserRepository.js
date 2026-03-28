@@ -41,7 +41,6 @@ class UserRepository {
             return user;
 
         } catch (error) {
-            console.error('Error getting User:', error);
             return null;
         }
 

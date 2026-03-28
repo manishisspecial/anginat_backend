@@ -14,10 +14,6 @@ const sendEmail = async ({ recipientEmail, subject, textContent, html }) => {
     
     await sgMail.send(msg);
   } catch (error) {
-    console.error(
-      "Error sending email:",
-      error.response ? error.response.body : error.message
-    );
   }
 };
 

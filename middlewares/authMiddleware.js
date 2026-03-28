@@ -62,8 +62,7 @@ const verifyToken = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error('Authentication middleware error:', err);
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
 };
 
@@ -103,7 +102,6 @@ const authenticateServiceToken = (req, res, next) => {
       message: 'Service token is missing',
     });
   } catch (error) {
-    console.error('Service auth error:', error);
     return res.status(500).json({
       success: false,
       message: 'Authentication error',

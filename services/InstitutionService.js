@@ -15,7 +15,6 @@ class InstitutionService {
         try {
             return await InstitutionRepository.generateInstitutionCode();
         } catch (error) {
-            console.error("Error finding user by institution:", error.message || error);
             throw new Error('Error finding user by institution');
         }
     }
@@ -26,7 +25,6 @@ class InstitutionService {
                 'customFeatures.featureId']);
             return institution && (institution.status === 'active' || institution.isActive) ? institution : null;
         } catch (error) {
-            console.error("Error finding institution by ID:", error.message || error);
             throw new Error('Error finding institution');
         }
     }
@@ -35,7 +33,6 @@ class InstitutionService {
         try {
             return await InstitutionRepository.findByDomain(domain);
         } catch (error) {
-            console.error("Error finding user by usernname:", error.message || error);
             throw new Error('Error finding user by username');
         }
     }

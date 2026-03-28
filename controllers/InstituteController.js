@@ -7,7 +7,6 @@ class InstituteController {
   async getInstituteDetails(req, res) {
     try {
       const { instituteId } = req.params;
-      console.log("Institute ID", instituteId);
       const instituteData = await InstitutionService.findById(instituteId);
 
       if (!instituteData) {
@@ -144,7 +143,6 @@ class InstituteController {
         });
       }
     } catch (error) {
-      console.log(res);
       return sendErrorResponse(
         res,
         "Internal Server Error",

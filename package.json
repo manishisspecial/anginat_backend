@@ -4,6 +4,7 @@
   "description": "Backend for Anginat App",
   "main": "server.js",
   "scripts": {
+    "build": "node --check app.js && node --check server.js",
     "start": "node server.js",
     "server": "nodemon server.js"
   },

@@ -39,10 +39,6 @@ class FeatureService {
         name: featureMap[featureId.toString()]
       }));
 
-      if (alreadyAssigned.length > 0) {
-        console.log(`The following features are already assigned: ${alreadyAssignedDetails.map(f => f.name).join(', ')}`);
-      }
-
       if (newFeatures.length === 0) {
         return { success: false, message: 'All features are already assigned', alreadyAssigned: alreadyAssignedDetails };
       }
@@ -82,7 +78,6 @@ class FeatureService {
       };
 
     } catch (error) {
-      console.error(`Error ${mode === 'hybrid' ? 'adding hybrid override' : 'assigning custom features'}:`, error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -102,7 +97,6 @@ class FeatureService {
       };
 
     } catch (error) {
-      console.error('Error removing hybrid override:', error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -148,7 +142,6 @@ class FeatureService {
       return { success: true, message: 'Feature added successfully' };
 
     } catch (error) {
-      console.error('Error adding feature:', error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -165,7 +158,6 @@ class FeatureService {
       return { success: true, message: 'Feature removed successfully' };
 
     } catch (error) {
-      console.error('Error removing feature:', error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -209,7 +201,6 @@ class FeatureService {
       return { success: true, message: 'Switched to subscription mode with subscription plan features assigned' };
 
     } catch (error) {
-      console.error('Error switching mode:', error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -226,7 +217,6 @@ class FeatureService {
       return features;
 
     } catch (error) {
-      console.error('Error getting common features:', error);
       return [];
     }
   }
@@ -257,7 +247,6 @@ class FeatureService {
       };
 
     } catch (error) {
-      console.error('Error getting institution config:', error);
       return { success: false, message: 'Internal error' };
     }
   }
@@ -266,16 +255,12 @@ class FeatureService {
    * Reset usage tracking when switching modes
    */
   async resetUsageTracking(institutionId) {
-    try {
-      await InstitutionRepository.updateInstituteDetails(institutionId, {
-        $set: {
-          'featureUsage.$[].usageCount': 0,
-          'featureUsage.$[].lastUsedAt': new Date()
-        }
-      });
-    } catch (error) {
-      console.error('Error resetting usage tracking:', error);
-    }
+    await InstitutionRepository.updateInstituteDetails(institutionId, {
+      $set: {
+        'featureUsage.$[].usageCount': 0,
+        'featureUsage.$[].lastUsedAt': new Date()
+      }
+    });
   }
 }
 

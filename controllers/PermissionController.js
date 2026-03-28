@@ -35,7 +35,6 @@ class PermissionController {
             });
 
         } catch (error) {
-            console.error('Error getting user permissions:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
 
@@ -57,7 +56,6 @@ class PermissionController {
 
             sendSuccessResponse(res, 'Feature access granted successfully', result);
         } catch (error) {
-            console.error('Error granting feature access:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
@@ -70,7 +68,6 @@ class PermissionController {
 
             sendSuccessResponse(res, 'Feature access revoked successfully', result);
         } catch (error) {
-            console.error('Error revoking feature access:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
@@ -91,7 +88,6 @@ class PermissionController {
             sendSuccessResponse(res, 'Permission added successfully', result);
 
         } catch (error) {
-            console.error('Error adding user permission:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }
@@ -105,7 +101,6 @@ class PermissionController {
             sendSuccessResponse(res, 'Permission removed successfully', result);
 
         } catch (error) {
-            console.error('Error removing user permission:', error);
             sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
         }
     }

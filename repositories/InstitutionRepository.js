@@ -63,7 +63,6 @@ class InstitutionRepository {
       return query;
 
     } catch (error) {
-      console.error('Error getting institution:', error);
       return null;
     }
   }
@@ -77,10 +76,6 @@ class InstitutionRepository {
       const institution = await Institution.findOne({ email });
       return institution;
     } catch (error) {
-      console.error(
-        `Error occurred while finding institution by email: ${email}`,
-        error
-      );
       throw new Error("Error finding user by email");
     }
   }
@@ -102,10 +97,9 @@ class InstitutionRepository {
       }
 
       if (institutionData.email) {
-        const updatedUser = await UserRepository.updateDetails(id, {
+        await UserRepository.updateDetails(id, {
           email: institution.email,
         });
-        console.log("Updated User", updatedUser)
       }
       if (institution.phoneNumber) {
         await UserRepository.updateDetails(id, {
@@ -127,7 +121,6 @@ class InstitutionRepository {
 
       return result;
     } catch (error) {
-      console.error('Error in performDynamicUpdate:', error);
       throw error;
     }
   }

@@ -35,7 +35,6 @@ router.post('/check-feature', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Check feature access error:', error);
         sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
     }
 });
@@ -62,7 +61,6 @@ router.post('/check-permission', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Check permission error:', error);
         sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
     }
 });
@@ -128,7 +126,6 @@ router.post('/check-access', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Check access error:', error);
         sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
     }
 });
@@ -153,7 +150,6 @@ router.post('/track-usage', async (req, res) => {
         sendSuccessResponse(res, 'Usage tracked successfully', result);
 
     } catch (error) {
-        console.error('Track usage error:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
@@ -171,7 +167,6 @@ router.get('/features/:institutionId', async (req, res) => {
         sendSuccessResponse(res, 'Accessible features retrieved successfully', features);
 
     } catch (error) {
-        console.error('Get features error:', error);
         sendErrorResponse(res, "Internal Server Error", 500, error.message || error);
     }
 });
@@ -199,7 +194,6 @@ router.get('/subscription/:institutionId', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get subscription error:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'

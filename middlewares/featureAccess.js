@@ -41,7 +41,6 @@ const requireFeature = (featureName) => {
             next();
 
         } catch (error) {
-            console.error('Feature access middleware error:', error);
             return res.status(500).json({
                 success: false,
                 message: 'Internal server error',
